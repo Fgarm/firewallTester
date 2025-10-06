@@ -81,13 +81,14 @@ class FirewallGUI:
         "include_filter_table": True
     }
 
-    def __init__(self, root):
+    def __init__(self, root : tk.Tk):
         """
             Start firewall tester interface with some variables, methods and create default frames.
         """
         self.root = root
         self.root.title("Firewall Tester")
         self.root.geometry("800x600")
+        
 
         # Creating Notebook tab
         self.notebook = ttk.Notebook(root)
