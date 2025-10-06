@@ -180,7 +180,7 @@ try:
             response, _ = client_sock.recvfrom(1024) if args.protocol == "udp" else (client_sock.recv(1024), None)
             timestamp_response = datetime.now().isoformat()
             if verbose > 0: print(f"\033[32m\t+ Response received from the server {args.server_host}:{args.server_port}/{args.protocol.upper()}->{client_ip}:{client_port}.\033[0m")
-            if verbose > 0: print(f"Round-trip time of the message: {calcular_diferenca_timestamp(message["timestamp_send"], timestamp_response)} ms")
+            if verbose > 0: print(f"Round-trip time of the message: {calcular_diferenca_timestamp(message['timestamp_send'], timestamp_response)} ms")
             response_data = response.decode()
             if verbose > 2: print(f"+ Server response: {response_data}")
             message = json.loads(response_data)

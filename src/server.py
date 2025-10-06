@@ -164,6 +164,7 @@ def kill_pid_by_port(protocol, port):
 def show_total_msgs():
     """
         Shows the total number of messages sent by clients and processed by the server in this program.
+
     """
     global total_tcp_msgs, total_udp_msgs
     print(f"Number of messages:\n\t * TCP: {total_tcp_msgs};\n\t * UDP: {total_udp_msgs};\n\t * Total: {total_tcp_msgs+total_udp_msgs};")
@@ -192,7 +193,7 @@ def lidar_com_cliente_TCP(client_socket):
         if (dest_ip not in server_ips) and check_if_validIP_not_localhost_or_zero(dest_ip):
             #print(f"ips diferentes {dest_ip}")
             host_name = socket.getfqdn()
-            json_data["message"] = f"Looks like DNAT was made {json_data["server_ip"]}->{host_name}"
+            json_data["message"] = f"Looks like DNAT was made {json_data['server_ip']}->{host_name}"
             json_data = add_dnat_to_json(json_data, host_name, server_ip, server_port)
             print(json.dumps(json_data, indent=4))
 
@@ -238,7 +239,7 @@ def server_udp(port):
             host_name = socket.getfqdn()
             server_ip = server_ips[0]
             # TODO - the server IP may be presented strangely here, as we are taking the first IP of the server host, and in the rule it may have been redirected to another IP of the same server.
-            json_data["message"] = f"Looks like DNAT was made {json_data["server_ip"]}->{host_name}"
+            json_data["message"] = f"Looks like DNAT was made {json_data['server_ip']}->{host_name}"
             json_data = add_dnat_to_json(json_data, host_name, server_ip, port)
             print(json.dumps(json_data, indent=4))
         

@@ -76,32 +76,32 @@ class SimulationManager:
         
     def save_settings(self):
         settings = {
-            "firewall_directory": self.config_firewall_dir_var.get(),
-            "reset_rules_file": self.config_firewall_reset_rules_var.get(),
-            "firewall_rules_file": self.config_firewall_rules_var.get(),
-            "server_ports_file": self.config_server_ports_var.get(),
-            "show_container_id": self.config_show_container_id_var.get(),
-            "docker_image": self.config_docker_image_var.get(),
-            "include_filter_table": self.config_include_filter_var.get(),
-            "include_nat_table": self.config_include_nat_var.get(),
-            "include_mangle_table": self.config_include_mangle_var.get()
+            "firewall_directory": self.current_settings["firewall_directory"].get(),
+            "reset_rules_file": self.current_settings["reset_rules_file"].get(),
+            "firewall_rules_file": self.current_settings["firewall_rules_file"].get(),
+            "server_ports_file": self.current_settings["server_ports_file"].get(),
+            "show_container_id": self.current_settings["show_container_id"].get(),
+            "docker_image": self.current_settings["docker_image"].get(),
+            "include_filter_table": self.current_settings["include_filter_table"].get(),
+            "include_nat_table": self.current_settings["include_nat_table"].get(),
+            "include_mangle_table": self.current_settings["include_mangle_table"].get()
         }
         with open(self.SETTINGS_FILE, "w") as f:
             json.dump(settings, f, indent=4)
         
-        if self.config_show_container_id_var.get():
-            self.tree.column("Container ID", width=130, minwidth=100)
-        else:
-            self.tree.column("Container ID", width=0, minwidth=0)
+        #if self.current_settings["show_container_id"].get():
+        #    self.tree.column("Container ID", width=130, minwidth=100)
+        #else:
+        #    self.tree.column("Container ID", width=0, minwidth=0)
             
     def restore_default_settings(self):
-        self.config_firewall_dir_var.set(self.simulation.DEFAULT_SETTINGS["firewall_directory"])
-        self.config_firewall_reset_rules_var.set(self.simulation.DEFAULT_SETTINGS["reset_rules_file"])
-        self.config_firewall_rules_var.set(self.simulation.DEFAULT_SETTINGS["firewall_rules_file"])
-        self.config_server_ports_var.set(self.simulation.DEFAULT_SETTINGS["server_ports_file"])
-        self.config_show_container_id_var.set(self.simulation.DEFAULT_SETTINGS["show_container_id"])
-        self.config_docker_image_var.set(self.simulation.DEFAULT_SETTINGS["docker_image"])
-        self.config_include_filter_var.set(self.simulation.DEFAULT_SETTINGS["include_filter_table"])
-        self.config_include_nat_var.set(self.simulation.DEFAULT_SETTINGS["include_nat_table"])
-        self.config_include_mangle_var.set(self.simulation.DEFAULT_SETTINGS["include_mangle_table"])
+        self.current_settings["firewall_directory"].set(self.DEFAULT_SETTINGS["firewall_directory"])
+        self.current_settings["reset_rules_file"].set(self.DEFAULT_SETTINGS["reset_rules_file"])
+        self.current_settings["firewall_rules_file"].set(self.DEFAULT_SETTINGS["firewall_rules_file"])
+        self.current_settings["server_ports_file"].set(self.DEFAULT_SETTINGS["server_ports_file"])
+        self.current_settings["show_container_id"].set(self.DEFAULT_SETTINGS["show_container_id"])
+        self.current_settings["docker_image"].set(self.DEFAULT_SETTINGS["docker_image"])
+        self.current_settings["include_filter_table"].set(self.DEFAULT_SETTINGS["include_filter_table"])
+        self.current_settings["include_nat_table"].set(self.DEFAULT_SETTINGS["include_nat_table"])
+        self.current_settings["include_mangle_table"].set(self.DEFAULT_SETTINGS["include_mangle_table"])
         self.save_settings()

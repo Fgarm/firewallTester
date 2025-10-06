@@ -96,7 +96,7 @@ class FirewallTesterGUI(tk.Tk):
         self.button_quit = ttk.Button(frame_botton, text="Exit", command=self.confirm_exit)
         self.button_quit.grid(row=0, column=6, padx=10, pady=10, sticky="nsew")
         
-        
+        #self.current_settings["show_container_id"].trace_add('write') #TODO> When in firewall page, this will be needed
         #frame_botton.grid_rowconfigure(0, weight=1)
         #frame_botton.grid_rowconfigure(1, weight=1)
         #frame_botton.grid_rowconfigure(2, weight=1)
