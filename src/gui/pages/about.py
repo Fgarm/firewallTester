@@ -32,7 +32,6 @@ class AboutPage(ttk.Frame):
         
         add_centered("About the Software", font=("Arial", 14, "bold"), )
 
-        # --- Description ---
         description = (
             "This software was developed with the goal of strengthening network security "
             "through practical and efficient firewall testing. More than just a testing tool, "
@@ -71,9 +70,8 @@ class AboutPage(ttk.Frame):
         add_centered("License:")
         add_centered("GNU GPL v3", is_link=True, bind_url="https://www.gnu.org/licenses/gpl-3.0.html")
 
-        # --- Help Button (centered) ---
         btn_help = ttk.Button(content_frame, text="Help", command=self.open_help)
-        btn_help.grid(row=row, column=0, pady=(10, 0), sticky="n")  # small top margin; stays centered horizontally
+        btn_help.grid(row=row, column=0, pady=(10, 0), sticky="n")  
 
     def open_help(self):
         webbrowser.open_new_tab("https://github.com/luizsantos/firewallTester")

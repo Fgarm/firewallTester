@@ -89,7 +89,7 @@ class SimulationManager:
         with open(self.SETTINGS_FILE, "w") as f:
             json.dump(settings, f, indent=4)
         
-        #if self.current_settings["show_container_id"].get():
+        #if self.current_settings["show_container_id"].get(): # Não necessário caso seja feito uso do trace
         #    self.tree.column("Container ID", width=130, minwidth=100)
         #else:
         #    self.tree.column("Container ID", width=0, minwidth=0)

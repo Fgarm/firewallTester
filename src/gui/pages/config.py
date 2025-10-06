@@ -32,9 +32,6 @@ class ConfigPage(ttk.Frame):
         content_frame.columnconfigure(0, weight=1)
         content_frame.columnconfigure(1, weight=1)
         
-        #title_frame = tk.Frame(content_frame)
-        #title_frame.grid(row=0, column=0, pady=(0, 10), sticky="ew")
-        
         
         self.simulation = simulation
         settings = simulation.load_settings()
@@ -50,23 +47,11 @@ class ConfigPage(ttk.Frame):
         print("include_nat_table:", settings.get("include_nat_table", False).get())
         print("include_mangle_table:", settings.get("include_mangle_table", False).get())
         
-        
-        #self.config_firewall_dir_var = tk.StringVar(value=settings.get("firewall_directory", ""))
-        #self.config_firewall_reset_rules_var = tk.StringVar(value=settings.get("reset_rules_file", ""))
-        #self.config_firewall_rules_var = tk.StringVar(value=settings.get("firewall_rules_file", ""))
-        #self.config_server_ports_var = tk.StringVar(value=settings.get("server_ports_file", ""))
-        #self.config_show_container_id_var = tk.BooleanVar(value=settings.get("show_container_id", False))
-        #self.config_docker_image_var = tk.StringVar(value=settings.get("docker_image", ""))
-        #self.config_include_filter_var = tk.BooleanVar(value=settings.get("include_filter_table", False))
-        #self.config_include_nat_var = tk.BooleanVar(value=settings.get("include_nat_table", False))
-        #self.config_include_mangle_var = tk.BooleanVar(value=settings.get("include_mangle_table", False))
+    
 
-        # Developer Information
         lbl_title = ttk.Label(content_frame, text="Software Settings", font=("Arial", 14, "bold"), anchor="center", justify="center")
         lbl_title.grid(row=0, column=0, pady=(0, 10), sticky="ew")
         
-        #buttons_frame = tk.Frame(content_frame)
-        #buttons_frame.grid(row=10, column=0, pady=(0, 10), sticky="ew")
         
         ttk.Label(content_frame, text="Firewall Directory in the containers:", anchor="center", justify="center").grid(row=1, column=0, sticky="w")
         ttk.Entry(content_frame, textvariable=self.simulation.current_settings["firewall_directory"], width=40).grid(row=1, column=1)
