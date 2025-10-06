@@ -27,6 +27,7 @@ from tkinter import ttk
 from tkinter import messagebox
 from tkinter import font
 from tkinter import filedialog
+from simulation import SimulationManager
 from pages.firewall import FirewallPage
 from pages.about import AboutPage
 from pages.config import ConfigPage
@@ -50,6 +51,7 @@ class FirewallTesterGUI(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
         #self.application = application
+        self.simulation = SimulationManager()
         self.geometry("800x600")
         self.title("Firewall Tester")
         self.rowconfigure(0, weight=1)
@@ -78,7 +80,7 @@ class FirewallTesterGUI(tk.Tk):
         #self.notebook.add(FirewallPage(self), text="Firewall Test")
         #self.notebook.add(FirewallRulesPage(self), text="Firewall Rules")
         #self.notebook.add(HostsPage(self), text="Hosts")
-        self.notebook.add(ConfigPage(self), text="Settings")
+        self.notebook.add(ConfigPage(self, self.simulation), text="Settings")
         self.notebook.add(AboutPage(self), text="About")
 
         # Frame under tabs
@@ -105,35 +107,12 @@ class FirewallTesterGUI(tk.Tk):
     
     def confirm_exit():
         pass
-
-
-
-
-
-
-class SimulationManager:
     
-    SETTINGS_FILE = "conf/config.json"
-    # file name path
-    save_file_path = None
-
-    # List to store tests
-    tests = []
-
-    # buttons list from hosts
-    #list_button_servers_onOff = []
     
-    # get data from containers and hosts
-    #self.containers_data = containers.extract_containerid_hostname_ips( )  # get hosts informations
     
-    # get container_id and hostname - used for example to combobox in firewall rules.
-    #self.container_hostname = containers.get_containerid_hostname() # container_id and hostname for operations
-    #self.hosts = list(map(lambda x: x[1], self.container_hostname)) # hostnames to display
-    def update_hosts():
-        pass
-
-
-
+    
+    
+    
 
 
 if __name__ == "__main__":

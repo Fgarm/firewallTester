@@ -5,9 +5,9 @@ import webbrowser
 
 class AboutPage(ttk.Frame):
     def __init__(self, parent: ttk.Widget):
+        
         """
-        About page for a ttk.Notebook. IMPORTANT: do NOT call self.grid()/self.pack()
-        here — the Notebook will add and manage this frame. Use grid only for internal layout.
+        Create tab about to present some informations about the software interface like: author, description, licence, etc.
         """
         super().__init__(parent)
         
@@ -18,15 +18,19 @@ class AboutPage(ttk.Frame):
         content_frame.grid(row=0, column=0, sticky="ew", padx=20)
         content_frame.columnconfigure(0, weight=1)
 
-        # --- Title (centered) ---
-        lbl_title = ttk.Label(
-            content_frame,
-            text="About the Software",
-            font=("Arial", 14, "bold"),
-            anchor="center",
-            justify="center"
-        )
-        lbl_title.grid(row=0, column=0, pady=(0, 10), sticky="ew")
+        row = 0
+        
+        def add_centered(label_text, font=None, is_link=None, bind_url=None, pady=(0, 2)):
+                    nonlocal row
+                    lbl = ttk.Label(content_frame, text=label_text, font=font, anchor="center", justify="center")
+                    lbl.grid(row=row, column=0, pady=pady, sticky="ew")
+                    if is_link and bind_url:
+                        lbl.configure(foreground="blue", cursor="hand2")
+                        lbl.bind("<Button-1>", lambda e: webbrowser.open_new_tab(bind_url))
+                    row += 1
+                    return lbl
+        
+        add_centered("About the Software", font=("Arial", 14, "bold"), )
 
         # --- Description ---
         description = (
@@ -42,7 +46,8 @@ class AboutPage(ttk.Frame):
         bg_color = parent.cget("background")
 
         description_frame = ttk.Frame(content_frame)
-        description_frame.grid(row=1, column=0, sticky="ew", pady=10)
+        description_frame.grid(row=row, column=0, sticky="ew", pady=10)
+        row += 1
         description_frame.columnconfigure(0, weight=1)
         description_frame.rowconfigure(0, weight=1)
 
@@ -55,19 +60,7 @@ class AboutPage(ttk.Frame):
         text_widget.grid(row=0, column=0, sticky="ew")
         text_widget.tag_configure("center", justify='center')
         text_widget.tag_add("center", "1.0", "end")
-
-        # --- Developer Info (stacked, centered) ---
-        row = 2
-        def add_centered(label_text, font=None, is_link=None, bind_url=None):
-            nonlocal row
-            lbl = ttk.Label(content_frame, text=label_text, font=font, anchor="center", justify="center")
-            lbl.grid(row=row, column=0, pady=(4 if row>2 else 0, 2), sticky="ew")
-            if is_link and bind_url:
-                lbl.configure(foreground="blue", cursor="hand2")
-                lbl.bind("<Button-1>", lambda e: webbrowser.open_new_tab(bind_url))
-            row += 1
-            return lbl
-
+        
         add_centered("Developer:")
         add_centered("Prof. Luiz Arthur Feitosa dos Santos", font=("Arial", 12, "bold"))
         add_centered("luiz.arthur.feitosa.santos@gmail.com", is_link=True, bind_url="mailto:luiz.arthur.feitosa.santos@gmail.com")
