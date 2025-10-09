@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import textwrap
 import webbrowser
+from utils import ScrollablePage
 
 class AboutPage(ttk.Frame):
     def __init__(self, parent: ttk.Widget):
@@ -14,9 +15,7 @@ class AboutPage(ttk.Frame):
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1) 
 
-        content_frame = ttk.Frame(self)
-        content_frame.grid(row=0, column=0, sticky="ew", padx=20)
-        content_frame.columnconfigure(0, weight=1)
+        content_frame = ScrollablePage(self)
 
         row = 0
         
