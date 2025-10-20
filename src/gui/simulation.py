@@ -37,21 +37,74 @@ class SimulationManager:
     
     # List of settings in Tkinter string value
     current_settings : dict[str, tk.Variable] = {}
+    
+    hosts : tk.StringVar
+    containers_data = []
+    container_hostname = []
+    containers : list[dict[str, ]]
+    
     def __init__(self):
+        
         self.load_settings()
+        self.update_hosts()
+        # get data from containers and hosts
+        # get container_id and hostname - used for example to combobox in firewall rules.
+        
+    def update_hosts(self):
+        self.containers_data = containers.extract_containerid_hostname_ips( )  # get hosts informations
+        self.container_hostname = containers.get_containerid_hostname() # container_id and hostname for operations
+        print(map(lambda x: x[1], self.container_hostname))
+        print("aqui\n")
+        print(list(map(lambda x: x[1], self.container_hostname)))
+        print("aqui2\n")
+        self.hosts = tk.StringVar(value=list(map(lambda x: x[1], self.container_hostname))) # hostnames to display
+        print(self.hosts.get())
+        print("aqui3\n")
+        print(json.loads(self.hosts.get()))
+        
+        
+        #TODO: Atualizar combobox do firewall rules tbm
+    
+    def getContainersByImageName(self) -> list[dict[str, ]]:
+        #TODO: Observar se algo mais é necessário ou conveniente além de servir só como wrapper
+        self.containers : list[dict[str, ]] = containers.getContainersByImageName()
+        return self.containers
+    
+    def host_check_server_on_off(self, container_id):
+        """
+            Checks if the server is on or off (server is serve.py in each container/host).
 
-    # buttons list from hosts
-    #list_button_servers_onOff = []
+            Args:
+                container_id: Container ID.
+        """
+        #print(f"Check if server is on or off at container {container_id}")
+        cmd = 'docker exec '+ container_id+' ps ax | grep "/usr/local/bin/python ./server.py" | grep -v grep'
+        result = containers.run_command_shell(cmd)
+        if result !="":
+            return "on"
+        else:
+            return "off"
     
-    # get data from containers and hosts
-    #self.containers_data = containers.extract_containerid_hostname_ips( )  # get hosts informations
-    
-    # get container_id and hostname - used for example to combobox in firewall rules.
-    #self.container_hostname = containers.get_containerid_hostname() # container_id and hostname for operations
-    #self.hosts = list(map(lambda x: x[1], self.container_hostname)) # hostnames to display
-    def update_hosts():
+    def hosts_start_servers(self):
+        """
+            Start all the servers in the containers, use server.py for this.
+        """
         pass
-    
+        '''
+        #print("start_servers")
+        # TODO - check if there was an error when starting the server and in which container.
+        for container in self.containers_data:
+            container_id = container["id"]
+            containers.start_server(container_id)
+
+        for cid, btn, label_status in self.list_button_servers_onOff:
+            #print(f"cid/btn {cid} - {btn}")
+                btn.config(image=self.power_icon, text="liga")
+                status = self.host_check_server_on_off(container_id)
+                label_status.config(text=f"Server Status: {status}", font=("Arial", 10))
+        '''
+        
+        
     def load_settings(self) -> dict[str, tk.Variable]:
         settings = {}
         try:
@@ -105,3 +158,33 @@ class SimulationManager:
         self.current_settings["include_nat_table"].set(self.DEFAULT_SETTINGS["include_nat_table"])
         self.current_settings["include_mangle_table"].set(self.DEFAULT_SETTINGS["include_mangle_table"])
         self.save_settings()
+        
+        
+    def hosts_save_ports_in_file(self, container_id, ports_list):
+        """
+            Saves the ports and protocols of the Treeview in a file, in the format "port/protocol".
+
+            Args:
+                ports_table: The Treeview containing the columns "Protocol" and "Port".
+                file_name: Name of the file where the data will be saved.
+        """
+        settings = self.load_settings()
+        file_name = settings.get("server_ports_file", "").get()
+        try:
+            with open(file_name, "w") as file:
+                # Iterate through all rows of the Treeview
+                for line in ports_list.get_children():
+                    # Get the line values (protocol and port)
+                    valores = ports_list.item(line, "values")
+                    if len(valores) == 2:  # Check if there are two values ​​(protocol and port)
+                        protocolo, porta = valores
+                        # write in the file in the format "prot/protocol"
+                        file.write(f"{porta}/{protocolo}\n")
+            print(f"Ports successfully saved in file {file_name}!")
+        except Exception as e:
+            print(f"Error saving ports: {e}")
+        
+        # reload the ports in the container, starting all services on each port.
+        self.reload_ports(container_id, file_name)
+        # restart server
+        containers.start_server(container_id)

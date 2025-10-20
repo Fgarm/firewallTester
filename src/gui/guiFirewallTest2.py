@@ -50,12 +50,12 @@ class FirewallTesterGUI(tk.Tk):
     
     def __init__(self) -> None:
         super().__init__()
-        self.simulation = SimulationManager()
         self.geometry("800x600")
         self.title("Firewall Tester")
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
         
+        self.simulation = SimulationManager()
         
         # Creating Notebook tab
         self.notebook = ttk.Notebook(self)
@@ -65,17 +65,18 @@ class FirewallTesterGUI(tk.Tk):
         self.notebook.columnconfigure(0, weight = 1)
         # Criando as abas
         
-        self.firewall_frame = ttk.Frame(self.notebook)
-        self.hosts_frame = ttk.Frame(self.notebook)
-        self.config_frame = ttk.Frame(self.notebook)
-        self.firewall_rules = ttk.Frame(self.notebook)
-        self.about_frame = ttk.Frame(self.notebook)
 
-        #self.notebook.add(FirewallPage(self), text="Firewall Test")
-        #self.notebook.add(FirewallRulesPage(self), text="Firewall Rules")
-        #self.notebook.add(HostsPage(self), text="Hosts")
-        self.notebook.add(ConfigPage(self, self.simulation), text="Settings")
-        self.notebook.add(AboutPage(self), text="About")
+        self.firewallPage = FirewallPage(self) 
+        self.firewallRulesPage = FirewallRulesPage(self) 
+        self.hostsPage = HostsPage(self, self.simulation)
+        self.configPage = ConfigPage(self, self.simulation)
+        self.aboutPage = AboutPage(self)
+        
+        #self.notebook.add(self.firewallPage, text="Firewall Test")
+        #self.notebook.add(self.firewallRulesPage, text="Firewall Rules")
+        self.notebook.add(self.hostsPage, text="Hosts")
+        self.notebook.add(self.configPage, text="Settings")
+        self.notebook.add(self.aboutPage, text="About")
 
         # Frame under tabs
         frame_botton = ttk.Frame(self, borderwidth=1)
@@ -91,15 +92,18 @@ class FirewallTesterGUI(tk.Tk):
         self.button_quit.grid(row=0, column=6, padx=10, pady=10, sticky="nsew")
         
         #self.current_settings["show_container_id"].trace_add('write') #TODO> When in firewall page, this will be needed
-        
-
-        
     
-    def update_hosts():
-        pass
+    def update_hosts(self):
+        #TODO> move hosts update screen logic to a callback when changed var
+        self.simulation.update_hosts()
+        self.hostsPage.hosts_update(self.simulation)
     
-    def confirm_exit():
-        pass
+    def confirm_exit(self):
+        """
+            A window opens asking if you really want to exit the firewall tester program.
+        """
+        if messagebox.askyesno("Confirmation", "Do you really want to exit the program?"):
+            self.destroy()
     
     
     
