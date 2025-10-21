@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+import json
 
 class ScrollablePage(ttk.Frame):
     """
@@ -26,3 +27,16 @@ class ScrollablePage(ttk.Frame):
         #create window in canvas
         window_id = my_canvas.create_window((0, 0), window=self, anchor="center", tags="window")
         my_canvas.bind('<Configure>', lambda e: my_canvas.itemconfigure(window_id, width=e.width))
+        
+class ListVar(tk.StringVar):
+    """
+    Create class with StringVar conveniences such as callback but that stores a lists
+    """
+    def __init__(self, value = None, name = None):
+        super().__init__(value=value)
+        
+    def get(self):
+        lista = f'[{super().get()[1:-1]}]'
+        lista = json.loads(lista.replace("'", '"'))
+        return lista
+        
