@@ -135,11 +135,17 @@ class HostsPage(ttk.Frame):
             lbl_status.grid(row=ip_index, column=0, padx=5, sticky="w")
 
             # Power button with icon
-            btn_toggle = ttk.Button(interface_frame, image=self.power_icon, command=lambda cid=container_id: self.host_toggle_server_and_button_between_onOff(cid, btn_toggle))
+            btn_toggle = ttk.Button(interface_frame, image=self.power_icon, command=lambda cid=container_id: self.host_toggle_server_and_button_between_onOff(simulation, cid, btn_toggle))
             btn_toggle.image = self.power_icon  # Keep the reference to avoid garbage collection
             btn_toggle.grid(row=ip_index, column=1, padx=10, pady=5, sticky="w")
             self.list_button_servers_onOff.append((container_id, btn_toggle, lbl_status))
             row_index += 1  # Extra line to separate hosts
+            
+            for container_id, btn, label_status in self.list_button_servers_onOff:
+            #print(f"cid/btn {cid} - {btn}")
+                btn.config(image=self.power_icon, text="liga")
+                status = simulation.host_check_server_on_off(container_id)
+                label_status.config(text=f"Server Status: {status}", font=("Arial", 10))
             
     def edit_host_ports(self, simulation: SimulationManager, container_id, hostname):
         """
@@ -256,7 +262,7 @@ class HostsPage(ttk.Frame):
         if selected:  # Verifica se há algo selecionado
             ports_list.delete(selected)
 
-    def host_toggle_server_and_button_between_onOff(self, container_id, button_on_off):
+    def host_toggle_server_and_button_between_onOff(self, simulation : SimulationManager, container_id, button_on_off):
         """
             Toggles between on and off in the hosts tab (toggles the button)
 
@@ -271,15 +277,15 @@ class HostsPage(ttk.Frame):
             if cid == container_id:
                 current_image = button_on_off["image"][0]
                 if current_image == str(self.power_icon):
-                    #print("off")
+                    print("off")
                     label_status.config()
                     containers.stop_server(container_id)
                     button_on_off.config(image=self.power_icon_off)
                 else:
-                    #print("on")
+                    print("on")
                     containers.start_server(container_id)
                     button_on_off.config(image=self.power_icon, text="liga")
-                status = self.host_check_server_on_off(container_id)
+                status = simulation.host_check_server_on_off(container_id)
                 label_status.config(text=f"Server Status: {status}", font=("Arial", 10))
                 break
             
