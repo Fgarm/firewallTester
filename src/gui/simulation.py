@@ -92,19 +92,12 @@ class SimulationManager:
             Start all the servers in the containers, use server.py for this.
         """
         pass
-        '''
-        #print("start_servers")
+        
+        print("start_servers")
         # TODO - check if there was an error when starting the server and in which container.
         for container in self.containers_data:
             container_id = container["id"]
             containers.start_server(container_id)
-
-        for cid, btn, label_status in self.list_button_servers_onOff:
-            #print(f"cid/btn {cid} - {btn}")
-                btn.config(image=self.power_icon, text="liga")
-                status = self.host_check_server_on_off(container_id)
-                label_status.config(text=f"Server Status: {status}", font=("Arial", 10))
-        '''
         
         
     def load_settings(self) -> dict[str, tk.Variable]:
