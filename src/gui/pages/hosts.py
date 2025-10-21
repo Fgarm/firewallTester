@@ -291,7 +291,7 @@ class HostsPage(ttk.Frame):
             
     def hosts_update(self, simulation: SimulationManager):
         """
-            Updates all host/container data - checks for example if any container was created or deleted, if any network configuration changed, etc.
+            Updates host/container data visualization in hosts tab
         """
         #print("update_hosts")
 
@@ -314,17 +314,17 @@ class HostsPage(ttk.Frame):
         self.hosts_show_host_informations_in_host_tab(simulation)
 
         # List of values ​​displayed in Combobox (hostname + IP)
-        if self.containers_data:
-            self.hosts_display = [f"{c['hostname']} ({c['ip']})" for c in self.containers_data]
-        else: # if there are no elements it displays a message
-            self.hosts_display = ["HOSTS (0.0.0.0)", "HOSTS (0.0.0.0)"]
-            messagebox.showerror("Error", "Unable to get a response from the hosts! \n Is GNS3 or the hosts running?")
-        self.src_ip["values"] = self.hosts_display
-        self.dst_ip["values"] = self.hosts_display
-        self.src_ip.current(0)
-        if len(self.containers_data) > 1: # checks if there is more than one element in the host list, if there isn't, you can't set the second one as default.
-            self.dst_ip.current(1)
-        else:
-            self.dst_ip.current(0)
+        #if self.containers_data:
+        #    self.hosts_display = [f"{c['hostname']} ({c['ip']})" for c in self.containers_data]
+        #else: # if there are no elements it displays a message
+        #    self.hosts_display = ["HOSTS (0.0.0.0)", "HOSTS (0.0.0.0)"]
+        #    messagebox.showerror("Error", "Unable to get a response from the hosts! \n Is GNS3 or the hosts running?")
+        #self.src_ip["values"] = self.hosts_display
+        #self.dst_ip["values"] = self.hosts_display
+        #self.src_ip.current(0)
+        #if len(self.containers_data) > 1: # checks if there is more than one element in the host list, if there isn't, you can't set the second one as default.
+        #    self.dst_ip.current(1)
+        #else:
+        #    self.dst_ip.current(0)
 
         #self.root.update_idletasks() # was commented, as there was a problem with the hosts tab.

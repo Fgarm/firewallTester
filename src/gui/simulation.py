@@ -51,7 +51,10 @@ class SimulationManager:
         # get container_id and hostname - used for example to combobox in firewall rules.
         
     def update_hosts(self):
-        self.containers_data = containers.extract_containerid_hostname_ips( )  # get hosts informations
+        """
+            Updates all host/container data - checks for example if any container was created or deleted, if any network configuration changed, etc.
+        """
+        self.containers_data = containers.extract_containerid_hostname_ips()  # get hosts informations
         self.container_hostname = containers.get_containerid_hostname() # container_id and hostname for operations
         #print(map(lambda x: x[1], self.container_hostname))
         #print("aqui\n")
@@ -60,9 +63,12 @@ class SimulationManager:
         self.hosts = ListVar(value=list(map(lambda x: x[1], self.container_hostname))) # hostnames to display
         lista = self.hosts.get()
         print(lista)
-        #print(self.hosts.get())
-        #print("aqui3\n")
-        #print(json.loads('[' + self.hosts.get() + ']'))
+        if self.containers_data:
+            self.hosts_display = [f"{c['hostname']} ({c['ip']})" for c in self.containers_data]
+        else: # if there are no elements it displays a message
+            self.hosts_display = ["HOSTS (0.0.0.0)", "HOSTS (0.0.0.0)"]
+            messagebox.showerror("Error", "Unable to get a response from the hosts! \n Is GNS3 or the hosts running?")
+        
         
         
         #TODO: Atualizar combobox do firewall rules tbm
@@ -80,7 +86,7 @@ class SimulationManager:
                 container_id: Container ID.
         """
         #print(f"Check if server is on or off at container {container_id}")
-        cmd = 'docker exec '+ container_id+' ps ax | grep "/usr/local/bin/python ./server.py" | grep -v grep'
+        cmd = 'docker exec '+ container_id +' ps ax | grep "/usr/local/bin/python ./server.py" | grep -v grep'
         result = containers.run_command_shell(cmd)
         if result !="":
             return "on"
