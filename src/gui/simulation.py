@@ -10,7 +10,7 @@ import re
 import threading
 import webbrowser
 import textwrap
-
+from utils import ListVar
 
 
 class SimulationManager:
@@ -38,7 +38,7 @@ class SimulationManager:
     # List of settings in Tkinter string value
     current_settings : dict[str, tk.Variable] = {}
     
-    hosts : tk.StringVar
+    hosts : ListVar
     containers_data = []
     container_hostname = []
     containers : list[dict[str, ]]
@@ -53,14 +53,16 @@ class SimulationManager:
     def update_hosts(self):
         self.containers_data = containers.extract_containerid_hostname_ips( )  # get hosts informations
         self.container_hostname = containers.get_containerid_hostname() # container_id and hostname for operations
-        print(map(lambda x: x[1], self.container_hostname))
-        print("aqui\n")
-        print(list(map(lambda x: x[1], self.container_hostname)))
-        print("aqui2\n")
-        self.hosts = tk.StringVar(value=list(map(lambda x: x[1], self.container_hostname))) # hostnames to display
-        print(self.hosts.get())
-        print("aqui3\n")
-        print(json.loads(self.hosts.get()))
+        #print(map(lambda x: x[1], self.container_hostname))
+        #print("aqui\n")
+        #print(list(map(lambda x: x[1], self.container_hostname)))
+        #print("aqui2\n")
+        self.hosts = ListVar(value=list(map(lambda x: x[1], self.container_hostname))) # hostnames to display
+        lista = self.hosts.get()
+        print(lista)
+        #print(self.hosts.get())
+        #print("aqui3\n")
+        #print(json.loads('[' + self.hosts.get() + ']'))
         
         
         #TODO: Atualizar combobox do firewall rules tbm
