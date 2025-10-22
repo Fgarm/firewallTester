@@ -161,7 +161,7 @@ class SimulationManager:
         self.save_settings()
         
         
-    def hosts_save_ports_in_file(self, container_id, ports_list):
+    def hosts_save_ports_in_file(self, container_id, ports_list : ttk.Treeview):
         """
             Saves the ports and protocols of the Treeview in a file, in the format "port/protocol".
 
@@ -189,3 +189,15 @@ class SimulationManager:
         self.reload_ports(container_id, file_name)
         # restart server
         containers.start_server(container_id)
+        
+    def reload_ports(self, container_id, file_name):
+        """
+            Reload service ports in the container/host. It's made copying the file in the interface to the container.
+            
+            Args:
+                container_id: container ID.
+                file_name: File name.
+        """
+        print(f"Reload ports from {container_id}")
+        containers.copy_ports2server(container_id, file_name)
+        

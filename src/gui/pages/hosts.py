@@ -186,11 +186,12 @@ class HostsPage(ttk.Frame):
 
         # Button to remove a line/port
         button_delete = ttk.Button(frame_buttons, text="Delete Port ", command=lambda: self.delete_line_treeview_host(list_host_ports))
-        button_delete.grid(row=0, column=0, pady=5)
+        button_delete.grid(row=0, column=2, pady=5)
 
-        ttk.Button(popup, text="Reload Ports", command=lambda: simulation.hosts_save_ports_in_file(container_id, list_host_ports)).grid(row=1, column=0, columnspan=2, pady=10)
+        button_reload = ttk.Button(frame_buttons, text="Save & Apply Ports", command=lambda: simulation.hosts_save_ports_in_file(container_id, list_host_ports))
+        button_reload.grid(row=0, column=0, pady=10)
         
-    def add_line_treeview_host(self, ports_list):
+    def add_line_treeview_host(self, ports_list : ttk.Treeview):
         """
             Open a new window to add a port in a Treeview
 
@@ -300,11 +301,12 @@ class HostsPage(ttk.Frame):
 
         simulation.update_hosts()
         
-        self.containers_data = containers.extract_containerid_hostname_ips( )  # get hosts information (hostname, interfaces, ips)
+        self.containers_data = containers.extract_containerid_hostname_ips()  # get hosts information (hostname, interfaces, ips)
 
         # get container_id and hostname - used for example to combobox in firewall rules.
-        self.container_hostname = containers.get_containerid_hostname() # container_id and hostname for operations
-        self.hosts = list(map(lambda x: x[1], self.container_hostname)) # hostnames to display
+        #self.container_hostname = containers.get_containerid_hostname() # container_id and hostname for operations
+        #self.hosts = list(map(lambda x: x[1], self.container_hostname)) # hostnames to display
+        #self.hosts = simulation.hosts.get()
         
         #TODO: Aqui ele cria os hosts para as regras de firewall dps, mudar isso para o simulationManager
         #self.combobox_firewall_rules_host['values']=self.hosts # update combobox values

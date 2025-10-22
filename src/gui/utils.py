@@ -36,6 +36,9 @@ class ListVar(tk.StringVar):
         super().__init__(value=value)
         
     def get(self):
+        """
+        Return variable as a list
+        """
         lista = f'[{super().get()[1:-1]}]'
         lista = json.loads(lista.replace("'", '"'))
         return lista
