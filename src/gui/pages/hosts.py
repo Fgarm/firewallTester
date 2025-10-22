@@ -188,8 +188,13 @@ class HostsPage(ttk.Frame):
         button_delete = ttk.Button(frame_buttons, text="Delete Port ", command=lambda: self.delete_line_treeview_host(list_host_ports))
         button_delete.grid(row=0, column=2, pady=5)
 
-        button_reload = ttk.Button(frame_buttons, text="Save & Apply Ports", command=lambda: simulation.hosts_save_ports_in_file(container_id, list_host_ports))
+        button_reload = ttk.Button(frame_buttons, text="Save & Apply Ports", command=lambda: self.apply_ports(simulation, container_id, list_host_ports))
         button_reload.grid(row=0, column=0, pady=10)
+    
+    
+    def apply_ports(self, simulation : SimulationManager, container_id, list_host_ports):
+        simulation.hosts_save_ports_in_file(container_id, list_host_ports)
+        self.destroy()
         
     def add_line_treeview_host(self, ports_list : ttk.Treeview):
         """
