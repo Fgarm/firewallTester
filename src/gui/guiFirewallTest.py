@@ -55,7 +55,6 @@ class FirewallTesterGUI(tk.Tk):
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
         
-        self.simulation = SimulationManager()
         
         # Creating Notebook tab
         self.notebook = ttk.Notebook(self)
@@ -63,17 +62,21 @@ class FirewallTesterGUI(tk.Tk):
         self.notebook.grid(column=0, row=0)
         self.notebook.rowconfigure(0, weight = 1)
         self.notebook.columnconfigure(0, weight = 1)
-        # Criando as abas
         
-
+        
+        self.simulation = SimulationManager()
+        
+        
+        
+        # Criando as abas
         self.firewallPage = FirewallPage(self) 
-        self.firewallRulesPage = FirewallRulesPage(self) 
+        self.firewallRulesPage = FirewallRulesPage(self, self.simulation) 
         self.hostsPage = HostsPage(self, self.simulation)
         self.configPage = ConfigPage(self, self.simulation)
         self.aboutPage = AboutPage(self)
         
         #self.notebook.add(self.firewallPage, text="Firewall Test")
-        #self.notebook.add(self.firewallRulesPage, text="Firewall Rules")
+        self.notebook.add(self.firewallRulesPage, text="Firewall Rules")
         self.notebook.add(self.hostsPage, text="Hosts")
         self.notebook.add(self.configPage, text="Settings")
         self.notebook.add(self.aboutPage, text="About")
