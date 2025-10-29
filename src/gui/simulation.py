@@ -1,3 +1,4 @@
+from collections import Counter
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -57,10 +58,17 @@ class SimulationManager:
         self.containers_data = containers.extract_containerid_hostname_ips()  # get hosts informations
         self.container_hostname = containers.get_containerid_hostname() # container_id and hostname for operations
         #print(map(lambda x: x[1], self.container_hostname))
-        #print("aqui\n")
+        print("aqui\n")
         #print(list(map(lambda x: x[1], self.container_hostname)))
         #print("aqui2\n")
-        self.hosts = ListVar(value=list(map(lambda x: x[1], self.container_hostname))) # hostnames to display
+        updated_hosts = ListVar(value=list(map(lambda x: x[1], self.container_hostname))) # hostnames to display
+        try:
+            if((Counter(self.hosts.get()) != Counter(updated_hosts.get()))):
+                self.hosts.set(value=updated_hosts.get())
+            else:
+                return
+        except AttributeError:
+            self.hosts = updated_hosts
         lista = self.hosts.get()
         print(lista)
         if self.containers_data:

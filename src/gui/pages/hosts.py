@@ -304,9 +304,9 @@ class HostsPage(ttk.Frame):
         for widget in self.frame_all_hosts.winfo_children():
             widget.destroy()
 
-        simulation.update_hosts()
+        #simulation.update_hosts()
         
-        self.containers_data = containers.extract_containerid_hostname_ips()  # get hosts information (hostname, interfaces, ips)
+        #self.containers_data = containers.extract_containerid_hostname_ips()  # get hosts information (hostname, interfaces, ips)
 
         # get container_id and hostname - used for example to combobox in firewall rules.
         #self.container_hostname = containers.get_containerid_hostname() # container_id and hostname for operations

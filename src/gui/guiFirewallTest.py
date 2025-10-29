@@ -69,13 +69,13 @@ class FirewallTesterGUI(tk.Tk):
         
         
         # Criando as abas
-        self.firewallPage = FirewallPage(self) 
+        self.firewallPage = FirewallPage(self, self.simulation) 
         self.firewallRulesPage = FirewallRulesPage(self, self.simulation) 
         self.hostsPage = HostsPage(self, self.simulation)
         self.configPage = ConfigPage(self, self.simulation)
         self.aboutPage = AboutPage(self)
         
-        #self.notebook.add(self.firewallPage, text="Firewall Test")
+        self.notebook.add(self.firewallPage, text="Firewall Test")
         self.notebook.add(self.firewallRulesPage, text="Firewall Rules")
         self.notebook.add(self.hostsPage, text="Hosts")
         self.notebook.add(self.configPage, text="Settings")
@@ -88,17 +88,20 @@ class FirewallTesterGUI(tk.Tk):
         self.notebook.columnconfigure(index=1, weight = 0)
         
         # TODO - when updating host data, it may be necessary to change test data, especially container IDs and perhaps host IPs - just as it has to be done when loading tests from a file - think of a single solution for both problems - perhaps user intervention is needed.
-        self.button_uptate_host = ttk.Button(frame_botton, text="Update Hosts", command=self.update_hosts)
+        
+        self.button_uptate_host = ttk.Button(frame_botton, text="Update Hosts", command=self.simulation.update_hosts)
         self.button_uptate_host.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
         self.button_quit = ttk.Button(frame_botton, text="Exit", command=self.confirm_exit)
         self.button_quit.grid(row=0, column=6, padx=10, pady=10, sticky="nsew")
         
-        #self.current_settings["show_container_id"].trace_add('write') #TODO> When in firewall page, this will be needed
-    
+        #self.simulation.current_settings["show_container_id"].trace_add('write',) #TODO> When in firewall page, this will be needed
+        self.simulation.hosts.trace_add('write', callback=self.update_hosts)
+        
     def update_hosts(self):
-        #TODO> move hosts update screen logic to a callback when changed var
-        self.simulation.update_hosts()
+        #TODO> move hosts update screen logic to a callback when changed self.hosts
+        print("Update hosts in screen called")
+        # self.simulation.update_hosts() # should be both not needed and not cause problems
         self.hostsPage.hosts_update(self.simulation)
     
     def confirm_exit(self):
