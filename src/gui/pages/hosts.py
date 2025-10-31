@@ -20,6 +20,7 @@ class HostsPage(ttk.Frame):
             Create Hosts tab, show informations about hosts and permit change some configurations like port and start/stop servers.
         """
         super().__init__(parent)
+        self.simulation = simulation
         
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1) 
@@ -35,12 +36,16 @@ class HostsPage(ttk.Frame):
         ttk.Label(self.top_frame, text="Network Containers Hosts:", font=("Arial", 12)).grid(row=0, column=0,)
 
         # Button to turn on all containers/servers
-        ttk.Button(self.top_frame, text="Turn on servers", command=simulation.hosts_start_servers).grid(row=1, column=0,)
+        ttk.Button(self.top_frame, text="Turn on servers", command=self.start_servers).grid(row=1, column=0,)
 
         self.frame_all_hosts = tk.Frame(content_frame)
         self.frame_all_hosts.grid(row=1, column=0,)
         
         self.hosts_show_host_informations_in_host_tab(simulation)
+        
+    def start_servers(self):
+        self.simulation.hosts_start_servers()
+        self.hosts_update()
 
     def hosts_show_host_informations_in_host_tab(self, simulation: SimulationManager):
         """
