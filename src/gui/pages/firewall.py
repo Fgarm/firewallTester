@@ -160,13 +160,10 @@ class FirewallPage(ttk.Frame):
         self.tree.heading("#", text="#")
         self.tree.column("#", width=30, anchor="e", stretch=False)
 
-        if  self.simulation.current_settings["show_container_id"].get(): # Show or hide container ID in tree table.
-            self.colunaContainerID=130 # show
-        else:
-            self.colunaContainerID=0 # hide.
             
         self.tree.heading("Container ID", text="Container ID")
-        self.tree.column("Container ID", width=self.colunaContainerID, stretch=False)
+        self.update_container_id()
+        #self.tree.column("Container ID", width=self.colunaContainerID, stretch=False)
 
         self.tree.heading("Source", text="Source")
         self.tree.column("Source", width=250, stretch=False)
@@ -260,6 +257,13 @@ class FirewallPage(ttk.Frame):
 
         self.button_load_tests = ttk.Button(self.frame_button_save_tests, text="Open Tests", command=self.firewall_tests_open_test_file)
         self.button_load_tests.grid(row=0, column=5, padx=10, pady=10, sticky="nsew")
+    
+    def update_container_id(self, param1 = "", param2 = "", param3 = ""):
+        
+        if self.simulation.current_settings["show_container_id"].get(): # Show or hide container ID in tree table.
+            self.tree.column("Container ID", width=130, stretch=False) # show
+        else:
+            self.tree.column("Container ID", width=0, stretch=False) # hide.
     
     def firewall_tests_save_tests(self):
         """
