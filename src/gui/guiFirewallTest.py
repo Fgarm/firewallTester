@@ -98,7 +98,7 @@ class FirewallTesterGUI(tk.Tk):
         self.simulation.current_settings["show_container_id"].trace_add('write', callback=self.firewallPage.update_container_id) #TODO> When in firewall page, this will be needed
         self.simulation.hosts.trace_add('write', callback=self.update_hosts)
         
-    def update_hosts(self):
+    def update_hosts(self, param1 = "", param2 = "", param3 = ""):
         #TODO> move hosts update screen logic to a callback when changed self.hosts
         print("Update hosts in screen called")
         # self.simulation.update_hosts() # should be both not needed and not cause problems
