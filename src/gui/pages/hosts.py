@@ -45,7 +45,7 @@ class HostsPage(ttk.Frame):
         
     def start_servers(self):
         self.simulation.hosts_start_servers()
-        self.hosts_update()
+        self.hosts_update(simulation=self.simulation)
 
     def hosts_show_host_informations_in_host_tab(self, simulation: SimulationManager):
         """
