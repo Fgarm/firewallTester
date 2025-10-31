@@ -295,7 +295,7 @@ class HostsPage(ttk.Frame):
                 label_status.config(text=f"Server Status: {status}", font=("Arial", 10))
                 break
             
-    def hosts_update(self, simulation: SimulationManager):
+    def hosts_update(self, simulation: SimulationManager, param1 = "", param2 = "", param3 = ""):
         """
             Updates host/container data visualization in hosts tab
         """
