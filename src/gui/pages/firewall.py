@@ -258,6 +258,13 @@ class FirewallPage(ttk.Frame):
         self.button_load_tests = ttk.Button(self.frame_button_save_tests, text="Open Tests", command=self.firewall_tests_open_test_file)
         self.button_load_tests.grid(row=0, column=5, padx=10, pady=10, sticky="nsew")
     
+    def update_combobox_ip(self):
+        self.src_ip['values'] = self.simulation.hosts_display
+        self.src_ip.current(0)
+        
+        self.dst_ip['values'] = self.simulation.hosts_display
+        self.dst_ip.current(0)
+    
     def update_container_id(self, param1 = "", param2 = "", param3 = ""):
         
         if self.simulation.current_settings["show_container_id"].get(): # Show or hide container ID in tree table.
