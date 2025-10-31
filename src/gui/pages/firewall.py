@@ -262,23 +262,298 @@ class FirewallPage(ttk.Frame):
         self.button_load_tests.grid(row=0, column=5, padx=10, pady=10, sticky="nsew")
     
     def firewall_tests_save_tests(self):
-        #TODO: Implement
-        pass
+        """
+            Saves the Treeview data to a JSON file.
+        """
+        print("Saving tests...")
+        if not self.save_file_path:
+            self.firewall_tests_save_tests_as()
+        else:
+            items = self.tree.get_children()
+            tests_data = []
+
+            for item in items:
+                values = self.tree.item(item, "values")
+                if values:
+                    # Recover the hidden Container ID
+                    #teste_id = values[0]
+                    #container_id = self.hidden_data.get(teste_id, "")  
+                    teste_id, container_id, src_ip, dst_ip, protocol, src_port, dst_port, expected, result, dnat, observation = values
+
+                    # Create the dictionary and add it to the list
+                    tests_data.append({
+                        "teste_id": teste_id,
+                        "container_id": container_id,
+                        "src_ip": src_ip,
+                        "dst_ip": dst_ip,
+                        "protocol": protocol,
+                        "src_port": src_port,
+                        "dst_port": dst_port,
+                        "expected": expected,
+                        "result": result,
+                        "flow": dnat,
+                        "data": observation
+                    })
+
+            # Write to JSON file
+            with open(self.save_file_path, "w") as f:
+                json.dump(tests_data, f, indent=4)
+
+            print(f"Tests successfully saved in file: {self.save_file_path}")
+            
+    
     def firewall_tests_save_tests_as(self):
-        #TODO: Implement
-        pass
+        """
+            Opens a window to save the tests as to a JSON file.
+        """
+        file_path = filedialog.asksaveasfilename(
+            title="Save test file",
+            defaultextension=".json",
+            filetypes=[("JSON files", "*.json"), ("All files", "*.*")]
+        )
+
+        if not file_path:  # If the user cancels, do nothing
+            return
+
+        self.save_file_path = file_path
+
+        #print(f"Saving in the file: {self.save_file_path}")
+        self.firewall_tests_save_tests()
+    
+    
     def firewall_tests_open_test_file(self):
-        #TODO: Implement
-        pass
-    def firewall_test_tree_select_line_test(self):
-        #TODO: Implement
-        pass
-    def firewall_test_tree_double_click_line_test(self):
-        #TODO: Implement
-        pass
-    def firewall_test_tree_select_line_test(self):
-        #TODO: Implement
-        pass
+        """
+            Opens a window to select a JSON file and load the tests.
+        """
+        file_path = filedialog.askopenfilename(
+            title="Open test file",
+            filetypes=[("JSON file", "*.json"), ("All files", "*.*")]
+        )
+
+        if not file_path:  # If the user cancels, it does nothing.
+            return
+
+        self.save_file_path = file_path
+
+        print(f"Loading tests from file: {file_path}")
+
+        self.firewall_tests_load_tests_from_file()
+        
+    # TODO - When loading, you have to check if the source still has the same container ID - because if it is on different machines or in different GNS3 projects - the container ID will change!
+    # TODO - I would also have to see if the IPs still match, because in class, the teacher usually gives the name of the machine and not the IP, so I would have to check if the IPs are the same, if they are not, I would have to update the IP, probably with user interaction if the host has more than one IP (choose which IP is for the test, especially if it is the destination - at the source this will not make much difference)
+    
+    def firewall_tests_load_tests_from_file(self):
+        """
+            Loads data from the JSON file into the Treeview.
+        """
+        print("Loading tests...")
+
+        if os.path.exists(self.save_file_path):
+            with open(self.save_file_path, "r") as f:
+                try:
+                    tests_data = json.load(f)
+                except json.JSONDecodeError:
+                    print("Error loading the JSON file.")
+                    return
+
+            # Add items to the Treeview
+
+            for test in tests_data:
+
+                source = self.extract_hostname(test["src_ip"])
+                print(f"test source: {source}")
+                container_id = self.find_container_id(source)
+                if container_id:
+                    item_id = self.tree.insert("", "end", values=[
+                        test["teste_id"], container_id, test["src_ip"], test["dst_ip"], test["protocol"],
+                        test["src_port"], test["dst_port"], test["expected"], test["result"], test["flow"], test["data"]
+                    ])
+                else:
+                    # If the source host loaded from the file does not exist in the network scenario, prompt the user to find a new matching host, or ignore and do not include this test line.
+                    # TODO - Perhaps it would be necessary to check if the hosts' IPs are the same as the loaded test, if not the user could be asked to change the IP by choosing from a list.
+                    container_id, selected_host = self.ask_user_for_source_host(test["src_ip"], self.simulation.hosts_display, test)
+                    
+                    if selected_host is not None:
+                        item_id = self.tree.insert("", "end", values=[
+                            test["teste_id"], container_id, selected_host, test["dst_ip"], test["protocol"],
+                            test["src_port"], test["dst_port"], test["expected"], test["result"], test["flow"], test["data"]
+                        ])
+                    else:
+                        print(f"Test {test} ignored by user.")
+
+            print("Tests successfully loaded!")
+            self.firewall_tests_buttons_set_normal_state()
+        else:
+            print("No test files found.")
+            
+    def extract_hostname(self, host_string):
+        """
+        Extracts the hostname from a string in the format "Host (address)".
+
+        Args:
+            host_string (str): The string containing the hostname and IP address.
+
+        Returns:
+            str: The hostname, or None if the string is not in the expected format.
+        """
+        try:
+            hostname = host_string.split(" (")[0]
+            return hostname
+        except IndexError:
+            return None  # Return None if the string is not in the expected format
+        
+    def find_container_id(self, search_hostname):
+        """
+        Finds the container_id associated with a hostname in the self.container_hostname list.
+
+        Args:
+            search_hostname (str): The hostname to search for.
+
+        Returns:
+            str or None: The container_id if the hostname is found, or None if not found.
+        """
+        for container_id, hostname in self.simulation.container_hostname:
+            if hostname == search_hostname:
+                return container_id
+        return None  # Return None if hostname is not found
+            
+    def ask_user_for_source_host(self, source, available_hosts, test):
+        """
+        Opens a dialog to ask the user to select a host if no container_id is found during load file test process,
+        displaying the test details.
+
+        Args:
+            source: the old source hostname, which was not found when the test was loaded from the file.
+            available_hosts: list of host names available in the current network scenario.
+            test: test data.
+
+        Returns: Container id and hostname of the new source host that was chosen in the interface by the user.
+        """
+        dialog = tk.Toplevel(self)
+        dialog.title("Select Host")
+        dialog.geometry("400x400")
+        dialog.transient(self.root)  
+        dialog.grab_set()  # block main window
+
+        warning_text = ("Attention: When trying to load the test from the file, "
+                    "no host was found matching the source hostname. "
+                    "Please select a host from the list that corresponds "
+                    "to the source host of the test, or ignore it to discard this test entry.")
+        ttk.Label(dialog, text=warning_text, wraplength=380, justify="left", font=("Arial", 10, "bold")).pack(pady=5)
+        
+        test_info = (f"Test data:\n"
+                    f"\tTest ID: {test['teste_id']}\n"
+                    f"\tSource: {test['src_ip']}\n"
+                    f"\tDestination: {test['dst_ip']}\n"
+                    f"\tProtocol: {test['protocol']}\n"
+                    f"\tSource Port: {test['src_port']}\n"
+                    f"\tDestination Port: {test['dst_port']}\n"
+                    f"\tExpected success for the test: {test['expected']}")
+        ttk.Label(dialog, text=test_info, justify="left").pack(pady=5)
+
+        ttk.Label(dialog, text=f"Then the source host ({source})\n" 
+                                f"was not found in the test scenario.\n"
+                                f"Please select a corresponding host or ignore.").pack(pady=5)
+        
+        host_var = tk.StringVar()
+        combobox = ttk.Combobox(dialog, textvariable=host_var, values=available_hosts, state="readonly", width=30)
+        combobox.pack(pady=5)
+        combobox.set(available_hosts[0] if available_hosts else "")
+
+        selected_host = None
+        container_id = None
+    
+    def firewall_test_tree_select_line_test(self, event):
+        """
+            Method executed when a row of the firewall test table is executed (on tab firewall test ).
+        """
+        #print("firewall_test_tree_select_line")
+        selected_item = self.tree.selection()
+        if selected_item:
+            item_values = self.tree.item(selected_item, "values")
+            if item_values:
+                #print(f"{item_values}")
+                
+                self.src_ip.set(item_values[2])
+
+                self.dst_ip.delete(0, tk.END)
+                self.dst_ip.insert(0, item_values[3])
+
+                self.protocol.set(item_values[4])
+
+                self.src_port.delete(0, tk.END)
+                self.src_port.insert(0, item_values[5])
+
+                self.dst_port.delete(0, tk.END)
+                self.dst_port.insert(0, item_values[6])
+
+                self.expected.set(item_values[7])
+
+        if not self.tree.selection():
+            self.button_tree_test.config(state="disabled")
+        else:
+            self.button_tree_test.config(state="normal")
+            self.button_tree_test_all.config(state="normal")
+
+        self.button_tree_add.config(state="normal")
+        self.button_tree_edit.config(state="disable")
+        self.button_tree_del.config(state="disable")
+        
+    
+    def firewall_test_tree_double_click_line_test(self, event):
+        """
+            Treat double click in firewall teste tree
+        """
+        self.firewall_test_tree_select_line_test(event)
+        self.firewall_tests_buttons_set_editing_state()
+        
+    def firewall_tests_buttons_set_editing_state(self):
+        """
+            Defines the state of the firewall test buttons when editing a line/test. 
+            State used to prevent the user from running a test while the rule is malformed (under editing or deletion)
+        """
+        self.button_tree_edit.config(state="normal")
+        self.button_tree_del.config(state="normal")
+        self.button_tree_add.config(state="disabled")
+        self.button_tree_test.config(state="disabled")
+        self.button_tree_test_all.config(state="disabled")
+        self.button_tree_edit.config(text="Save Edit")
+    
+    def firewall_test_tree_select_line_test(self, event):
+        """
+            Method executed when a row of the firewall test table is executed (on tab firewall test ).
+        """
+        #print("firewall_test_tree_select_line")
+        selected_item = self.tree.selection()
+        if selected_item:
+            item_values = self.tree.item(selected_item, "values")
+            if item_values:
+                #print(f"{item_values}")
+                
+                self.src_ip.set(item_values[2])
+
+                self.dst_ip.delete(0, tk.END)
+                self.dst_ip.insert(0, item_values[3])
+
+                self.protocol.set(item_values[4])
+
+                self.src_port.delete(0, tk.END)
+                self.src_port.insert(0, item_values[5])
+
+                self.dst_port.delete(0, tk.END)
+                self.dst_port.insert(0, item_values[6])
+
+                self.expected.set(item_values[7])
+
+        if not self.tree.selection():
+            self.button_tree_test.config(state="disabled")
+        else:
+            self.button_tree_test.config(state="normal")
+            self.button_tree_test_all.config(state="normal")
+
+        self.button_tree_add.config(state="normal")
+        self.button_tree_edit.config(state="disable")
+        self.button_tree_del.config(state="disable")
     
     def firewall_test_tree_add_line_test(self):
         """
@@ -391,14 +666,204 @@ class FirewallPage(ttk.Frame):
             return False
     
     def firewall_test_tree_edit_line_test(self):
-        #TODO: Implement
-        pass
-    def firewall_test_tree_delete_line_test(self):
-        #TODO: Implement
-        pass
+        """
+            Edit a row/test of an existing item/test in the firewall test Treeview. The test to be edited is the one currently selected in the treeview.
+        """
+        selected_item = self.tree.selection()
+        print(f"Selected item {selected_item}")
+        if not selected_item:
+            messagebox.showwarning("Warning", "Select an item to edit!")
+            return
+        
+        src_ip = self.src_ip.get()
+        dst_ip = self.dst_ip.get()
+        protocol = self.protocol.get()
+        src_port = self.src_port.get()
+        dst_port = self.dst_port.get()
+        expected = self.expected.get()
+
+        if self.firewall_tests_validate_entrys() != 0: return # Test values
+
+        values = [src_ip, dst_ip, protocol, src_port, dst_port, expected, "-", " ", " "]
+
+        for item in self.tree.get_children(): # avoid duplicate TODO testing - put this in a method as it is duplicated in the code!
+            existing_values = self.tree.item(item, "values")
+            if tuple(values) == existing_values[2:]:
+                messagebox.showwarning("Warning", "This entry already exists in the table!")
+                return
+
+        # Gets the ID of the container selected in the Combobox
+        selected_index = self.src_ip.current()
+        if selected_index >= 0 and selected_index < len(self.containers_data):
+            container_id = self.containers_data[selected_index]["id"]
+        else:
+            container_id = "N/A"  # If no container is selected
+        
+        values=[self.tree.item(selected_item, "values")[0], container_id, src_ip, dst_ip, protocol, src_port, dst_port, expected, "-", " ", " "]
+
+        self.tree.item(selected_item, values=values)
+        self.tree.item(selected_item, tags="")  # return the color to default
+        
+
+        self.firewall_tests_buttons_set_normal_state()
+        
+    
+    def firewall_test_tree_delete_line_test(self): # TODO - renumber lines when removing a test
+        """
+            Delete a row/test of an existing item/test in the firewall test Treeview. The test to be deleted is the one currently selected in the treeview.
+        """
+        selected_item = self.tree.selection()
+        if not selected_item:
+            messagebox.showwarning("Warning", "Select an item to delete!")
+            return
+        self.tree.delete(selected_item)
+
+        self.firewall_tests_buttons_set_normal_state() 
+    
+    
     def firewall_tests_run_test_line(self):
-        #TODO: Implement
-        pass
+        """
+            Test only one row of the firewall test table. This row will be the currently selected row in the firewall test tree.
+        """
+        selected_item = self.tree.selection()
+        if selected_item:
+            values = self.tree.item(selected_item, "values")
+            print(f"Items to testing:: {values}")
+            teste_id, container_id, src_ip, dst_ip, protocol, src_port, dst_port, expected, result, dnat, observation = values
+            
+            # if you were unable to extract the destination IP entered by the user to
+            dst_ip = self.extract_destination_host(dst_ip)
+            if dst_ip == None: return
+            
+            print(f"Test executed - Container ID: {container_id}, Dados: {src_ip} -> {dst_ip} [{protocol}] {src_port}:{dst_port} (Expected: {expected})")
+
+            result_str = containers.run_client_test(container_id, dst_ip, protocol.lower(), dst_port, "1", "2025", "0")
+
+            try:
+                result = json.loads(result_str)
+                print(f"The return of the command on the host is {result_str}")
+            except (json.JSONDecodeError, TypeError) as e:
+                print("Error processing JSON received from host:", e)
+                messagebox.showerror("Error", "Could not get a response from the hosts! \n Is GNS3 or the hosts turned on?")
+                result = None
+                return
+
+            self.firewall_tests_analyse_results_update_tree(expected, result, values, selected_item)
+            self.tree.selection_set(())
+            
+    def firewall_tests_analyse_results_update_tree(self, expected, result, values, selected_item):
+        """
+            Analyze the test result and update the table with the fields and colors that represent these results in the firewall test tree.
+
+            Args:
+                expected: result that was expected from the test.
+                result: result obtained in the test.
+                values: values ​​used and obtained in the test, such as source, destination, etc. are the columns of the firewall test treeview.
+                selected_item: Test line used and which will have its values ​​and color updated in the firewall test table.
+        """
+        # TODO - check whether all cases have been covered
+        # TODO - improve logic for checking user errors - such as testing a port that is not connected!
+        #print(values)
+        update_values = list(values)
+        tag = None
+
+        if result["server_response"] == True: # if the server responded then put sent/receved, otherwise just Sent - TODO - there may be a case where it didn't even send, which would be the case of the error!
+                    update_values[9] = "Sent/Receved" # The package was just sent and there was a response!
+                    update_values[8] = "Pass"
+        else:
+                    update_values[9] = "Sent" # The package was just sent but there was no response!
+                    update_values[8] = "Fail"
+
+        network_data = result['client_ip']+':'+str(result['client_port'])+'->'+result['server_ip']+':'+str(result['server_port'])+'('+result['protocol']+')'+' - Server response? '+ str(result['server_response'])+ ' - Status: '+result['status_msg']
+        update_values[-1] = network_data
+
+        if (result["status"] != '0'):
+            # an error occurred, such as the host network was not configured.
+            print(f"\033[33mThere was an error with the host when sending the packet, such as a misconfigured network - IP, GW, etc.\033[0m")
+            update_values[8] = "ERROR"
+            update_values[9] = "Not Sent"
+            tag = "error"
+        elif (result["server_response"] == True and expected == "yes"):
+            # test performed successfully and there was a response from the server.
+            print(f"\033[32mThe SUCCESS test occurred as expected.\033[0m")
+            tag = "yes"
+        elif (result["server_response"] == False and expected == "no"):
+            # # The packet sending test failed, but this was expected in the test, so this is a success!
+            print(f"\033[32mThe FAIL test occurred as expected.\033[0m")
+            tag = "yesFail"
+        else: # TODO - I think the logic is wrong here (check the possible cases) - is that in client.py you had to remove status=1 because it said there was an error in a packet blocked by the firewall!
+            print(f"\033[31mThe test did NOT occur as expected.\033[0m")
+            tag = "no"
+
+
+        if "dnat" in result: # dnat only happens if there is a response from the server so there is no need for result["server_response"] == True - this comes from server.py
+                #print("dnat")
+                # there was DNAT
+                dnat_data = result["dnat"]
+                network_data = result['client_ip']+':'+str(result['client_port'])+'->'+dnat_data['ip']+':'+str(dnat_data['port'])+'('+result['protocol']+')'+' - Server response? '+ str(result['server_response'])+ ' - Status: '+result['status_msg']
+                update_values[-1] = network_data
+                update_values[9] = "Sent/Receved (DNAT)"
+        
+        # update the test line in the firewall test tree.
+        self.tree.item(selected_item, values=update_values, tags=(tag,))
+        
+    def extract_destination_host(self, destination):
+        """
+            Extract the target host.
+
+            Args:
+                dst_ip: destination, can be a IP, host (IP) or a domain.
+        """
+        temp_destination =  self.extract_ip_parenthesized_from_string(destination)
+        #print(f"temp_dst_ip {temp_destination}")
+
+        if temp_destination != None:
+            destination = temp_destination
+        else:
+            # without parentheses
+            temp_destination = self.extract_ip_from_string(destination)
+            if temp_destination != None:
+                destination = temp_destination
+            else:
+                # dpmain
+                temp_destination = self.extract_domain(destination)
+                if temp_destination != None:
+                    destination = temp_destination
+                else:
+                    # invalid
+                    print(f"\033[33mCould not extract the destination IP in the interface:\n\tThe destination address must be an IP or domain, such as: 8.8.8.8 or www.google.com.\033[0m")
+                    return None
+        return destination    
+    
+    def extract_ip_parenthesized_from_string(self,string):
+        """
+            Extract IPs from a string, this method expects the IP to be in parentheses, which is the host format presented in the comboboxes of the firewall testing tab. 
+            So the string will be something like: Host1 (10.0.0.1), the method will return only 10.0.0.1. Only IPv4.
+
+            Args:
+                string: String to be parsed for IP
+        """
+        match = re.search(r'\((\d+\.\d+\.\d+\.\d+)\)', string)
+        return match.group(1) if match else None
+    
+    def extract_ip_from_string(self, string):
+        """
+            Extract IPs from a string. Only IPv4.
+            Args:
+                string: String to be parsed for IP
+        """
+        match = re.search(r'\(?(\d+\.\d+\.\d+\.\d+)\)?', string)  
+        return match.group(1) if match else None
+    
     def firewall_tests_popup_for_run_all_tests_using_threads(self):
         #TODO: Implement
         pass
+    
+    def extract_domain(self, string):
+        """
+            Extract domain from a string. This method expects two or more words separated by a dot - this method is not perfect.
+            Args:
+                string: String to be parsed for domain
+        """
+        match = re.search(r'\(?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\)?', string)
+        return match.group(1) if match else None
