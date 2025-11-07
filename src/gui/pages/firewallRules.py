@@ -156,6 +156,8 @@ class FirewallRulesPage(ttk.Frame):
         
     def update_hosts(self):
         self.combobox_firewall_rules_host['values']=self.simulation.hosts.get() # update combobox values
+        self.text_firewall_rules.delete(1.0, tk.END) #delete old firewall rules
+        self.text_active_firewall_rules.delete(1.0, tk.END) #delete old firewall rules listing
     
     def apply_firewall_rules(self):
         """
