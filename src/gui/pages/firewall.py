@@ -957,3 +957,9 @@ class FirewallPage(ttk.Frame):
         """
         match = re.search(r'\(?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\)?', string)
         return match.group(1) if match else None
+    
+    def delete_all_tests(self):
+        itens = self.tree.get_children()
+        total_list = len(itens)
+        for test in itens:
+            self.tree.delete(test)
