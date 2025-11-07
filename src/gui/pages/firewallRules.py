@@ -94,6 +94,7 @@ class FirewallRulesPage(ttk.Frame):
         frame_output_firewall_rules = ttk.LabelFrame(content_frame, text="Output ")
         frame_output_firewall_rules.grid(row=5, column=0, padx=10, pady=5)
         
+        
         def toggle_frame_output_on_rule_tab():
             """
                 Change frame output to hide or show output text in firewall rule tab.
@@ -105,7 +106,7 @@ class FirewallRulesPage(ttk.Frame):
                 frame_output_firewall_rules.grid()
                 button_show_active_firewall_rules.config(text="Hide output")
 
-        def select_all_text_on_rules_text(event):
+        def select_all_text_on_rules_text(event : tk.Event):
             """
                 Selecte every texto inside texto firewall rule - for use with Ctrl+A
             """
@@ -153,6 +154,8 @@ class FirewallRulesPage(ttk.Frame):
         button_show_active_firewall_rules = tk.Button(frame_buttons, text="Hide output", command=toggle_frame_output_on_rule_tab)
         button_show_active_firewall_rules.grid(row=0, column=2, padx=10)
         
+    def update_hosts(self):
+        self.combobox_firewall_rules_host['values']=self.simulation.hosts.get() # update combobox values
     
     def apply_firewall_rules(self):
         """

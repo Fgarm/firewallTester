@@ -22,6 +22,7 @@ class FirewallPage(ttk.Frame):
         """
         super().__init__(parent)
         
+        self.parent = parent
         self.simulation = simulation
         
         #ttk.Label(self, text="Firewall Test", font=("Arial", 12)).pack(pady=10)
@@ -119,21 +120,21 @@ class FirewallPage(ttk.Frame):
         self.button_tree_edit.grid(row=0, column=1, padx=5)
         #self.button_tree_edit.pack(side="left", padx=5)
         # # TODO - you have to think about when to enable and disable binds, because the way it is it works everywhere!
-        #self.root.bind("<Alt-e>", lambda event: self.edit_entry())
+        #self.parent.bind("<Alt-e>", lambda event: self.edit_entry())
 
         self.button_tree_del = tk.Button(self.button_frame, text="Delete", command=self.firewall_test_tree_delete_line_test, width=button_size, underline=0)
         self.button_tree_del.grid(row=0, column=2, padx=5)
-        #self.root.bind("<Alt-d>", lambda event: self.delete_entry())
+        #self.parent.bind("<Alt-d>", lambda event: self.delete_entry())
 
         self.button_tree_test = tk.Button(self.button_frame, text="Test Line", command=self.firewall_tests_run_test_line, width=button_size, underline=8)
         self.button_tree_test.grid(row=0, column=3, padx=5)
         #self.button_tree_test.pack(side="left", padx=5)
-        #self.root.bind("<Alt-l>", lambda event: self.testar_linha_tree())
+        #self.parent.bind("<Alt-l>", lambda event: self.testar_linha_tree())
 
         self.button_tree_test_all = tk.Button(self.button_frame, text="Test All", command=self.firewall_tests_popup_for_run_all_tests_using_threads, width=button_size, underline=0)
         self.button_tree_test_all.grid(row=0, column=4, padx=5)
         #self.button_tree_test_all.pack(side="left", padx=5)
-        #self.root.bind("<Alt-l>", lambda event: self.executar_todos_testes())
+        #self.parent.bind("<Alt-l>", lambda event: self.executar_todos_testes())
 
         
         # Frame to display the tests added in the treeview
@@ -263,7 +264,11 @@ class FirewallPage(ttk.Frame):
         self.src_ip.current(0)
         
         self.dst_ip['values'] = self.simulation.hosts_display
-        self.dst_ip.current(0)
+        
+        if len(self.simulation.containers_data) > 1: # checks if there is more than one element in the host list, if there isn't, you can't set the second one as default.
+            self.dst_ip.current(1)
+        else:
+            self.dst_ip.current(0)
     
     def update_container_id(self, param1 = "", param2 = "", param3 = ""):
         
@@ -397,7 +402,7 @@ class FirewallPage(ttk.Frame):
         else:
             print("No test files found.")
             
-    def extract_hostname(self, host_string):
+    def extract_hostname(self, host_string : str):
         """
         Extracts the hostname from a string in the format "Host (address)".
 
@@ -443,7 +448,7 @@ class FirewallPage(ttk.Frame):
         dialog = tk.Toplevel(self)
         dialog.title("Select Host")
         dialog.geometry("400x400")
-        dialog.transient(self.root)  
+        dialog.transient(self.parent)  
         dialog.grab_set()  # block main window
 
         warning_text = ("Attention: When trying to load the test from the file, "
@@ -705,8 +710,8 @@ class FirewallPage(ttk.Frame):
 
         # Gets the ID of the container selected in the Combobox
         selected_index = self.src_ip.current()
-        if selected_index >= 0 and selected_index < len(self.containers_data):
-            container_id = self.containers_data[selected_index]["id"]
+        if selected_index >= 0 and selected_index < len(self.simulation.containers_data):
+            container_id = self.simulation.containers_data[selected_index]["id"]
         else:
             container_id = "N/A"  # If no container is selected
         
@@ -867,9 +872,83 @@ class FirewallPage(ttk.Frame):
         return match.group(1) if match else None
     
     def firewall_tests_popup_for_run_all_tests_using_threads(self):
-        #TODO: Implement
-        pass
-    
+        """
+            Starts a window with a progress bar that executes all the tests in the firewall test tree. Threads are used for the progress bar to work.
+        """
+        print("Thread to execute all tests.")
+        popup_window = tk.Toplevel(self.parent)
+        popup_window.title("Processing...")
+        popup_window.geometry("300x120")
+        popup_window.resizable(False, False)
+        
+        status_label = tk.Label(popup_window, text="Starting...", font=("Arial", 10))
+        status_label.pack(pady=10)
+
+        progress_bar = tk.IntVar()
+        barra_progresso = ttk.Progressbar(popup_window, length=250, mode="determinate", variable=progress_bar)
+        barra_progresso.pack(pady=5)
+
+        self.tree.selection_set(())
+        self.firewall_tests_update_tree()
+
+        threading.Thread(target=self.firewall_tests_run_all_tests, args=(popup_window, progress_bar, status_label), daemon=True).start()
+        
+    def firewall_tests_update_tree(self):
+        """
+            Updates the treeview of tests in the firewall, in firewall tests tab.
+        """
+        itens = self.tree.get_children()
+
+        for item in itens:
+            self.tree.item(item, tags="")  # Sets tags to an empty list
+            
+    def firewall_tests_run_all_tests(self, popup_window : tk.Toplevel, progress_bar : tk.IntVar, status_label : tk.Label):
+        """
+            Run a all tests in the firewall test treeview.
+
+            Args:
+                popup_window: Pop up window used to show tests progress.
+                progress_bar: Progress bar used in the popup to show tests progresses.
+                status_label: Label used in the popup to show the tests progress.
+        """
+        index=0
+        
+        itens = self.tree.get_children()
+
+        total_list = len(itens)
+        for test in itens:
+            values = self.tree.item(test, "values")
+            teste_id, container_id, src_ip, dst_ip, protocol, src_port, dst_port, expected, result, dnat, observation = values
+            print(f"Executing test - Container ID:  {container_id}, Data: {src_ip} -> {dst_ip} [{protocol}] {src_port}:{dst_port} (Expected: {expected})")
+            
+            # if you were unable to extract the destination IP entered by the user to
+            dst_ip = self.extract_destination_host(dst_ip)
+            if dst_ip == None: return
+
+            print(f"Executing test - Container ID:  {container_id}, Data: {src_ip} -> {dst_ip} [{protocol}] {src_port}:{dst_port} (Expected: {expected})")
+
+            result_str = containers.run_client_test(container_id, dst_ip, protocol.lower(), dst_port, "1", "2025", "0")
+
+            try:
+                result = json.loads(result_str)
+            except (json.JSONDecodeError, TypeError) as e:
+                print("Error processing the JSON received from the host:", e)
+                messagebox.showerror("Error", "Unable to get a response from the hosts! \n Is GNS3 or the hosts running?")
+                result = None
+                return
+
+            self.firewall_tests_analyse_results_update_tree(expected,result, values, test)
+
+            index+=1
+            percentage_compete = (index / total_list) * 100
+            progress_bar.set(percentage_compete)  # Update progress bar
+            status_label.config(text=f"Processing... {index}/{total_list}")
+            
+
+        status_label.config(text="Task completed!")
+        progress_bar.set(100)  # Ensures the bar goes all the way to the end
+        popup_window.destroy()
+            
     def extract_domain(self, string):
         """
             Extract domain from a string. This method expects two or more words separated by a dot - this method is not perfect.

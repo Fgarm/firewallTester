@@ -99,10 +99,10 @@ class FirewallTesterGUI(tk.Tk):
         self.simulation.hosts.trace_add('write', callback=self.update_hosts)
         
     def update_hosts(self, param1 = "", param2 = "", param3 = ""):
-        #TODO> move hosts update screen logic to a callback when changed self.hosts
-        print("Update hosts in screen called")
-        # self.simulation.update_hosts() # should be both not needed and not cause problems
+        #print("Update hosts in screen called")
         self.hostsPage.hosts_update(self.simulation)
+        self.firewallRulesPage.update_hosts()
+        self.firewallPage.update_combobox_ip()
     
     def confirm_exit(self):
         """

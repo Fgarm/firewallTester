@@ -300,7 +300,7 @@ class HostsPage(ttk.Frame):
                 label_status.config(text=f"Server Status: {status}", font=("Arial", 10))
                 break
             
-    def hosts_update(self, simulation: SimulationManager, param1 = "", param2 = "", param3 = ""):
+    def hosts_update(self, simulation: SimulationManager):
         """
             Updates host/container data visualization in hosts tab
         """
@@ -318,25 +318,7 @@ class HostsPage(ttk.Frame):
         #self.hosts = list(map(lambda x: x[1], self.container_hostname)) # hostnames to display
         #self.hosts = simulation.hosts.get()
         
-        #TODO: Aqui ele cria os hosts para as regras de firewall dps, mudar isso para o simulationManager
-        #self.combobox_firewall_rules_host['values']=self.hosts # update combobox values
 
         #print(self.hosts)
 
         self.hosts_show_host_informations_in_host_tab(simulation)
-
-        # List of values ​​displayed in Combobox (hostname + IP)
-        #if self.containers_data:
-        #    self.hosts_display = [f"{c['hostname']} ({c['ip']})" for c in self.containers_data]
-        #else: # if there are no elements it displays a message
-        #    self.hosts_display = ["HOSTS (0.0.0.0)", "HOSTS (0.0.0.0)"]
-        #    messagebox.showerror("Error", "Unable to get a response from the hosts! \n Is GNS3 or the hosts running?")
-        #self.src_ip["values"] = self.hosts_display
-        #self.dst_ip["values"] = self.hosts_display
-        #self.src_ip.current(0)
-        #if len(self.containers_data) > 1: # checks if there is more than one element in the host list, if there isn't, you can't set the second one as default.
-        #    self.dst_ip.current(1)
-        #else:
-        #    self.dst_ip.current(0)
-
-        #self.root.update_idletasks() # was commented, as there was a problem with the hosts tab.

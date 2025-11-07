@@ -77,12 +77,8 @@ class SimulationManager:
             self.hosts_display = ["HOSTS (0.0.0.0)", "HOSTS (0.0.0.0)"]
             messagebox.showerror("Error", "Unable to get a response from the hosts! \n Is GNS3 or the hosts running?")
         
-        
-        
-        #TODO: Atualizar combobox do firewall rules tbm
     
     def getContainersByImageName(self) -> list[dict[str, ]]:
-        #TODO: Observar se algo mais é necessário ou conveniente além de servir só como wrapper
         self.containers : list[dict[str, ]] = containers.getContainersByImageName()
         return self.containers
     
