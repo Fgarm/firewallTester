@@ -112,8 +112,6 @@ class FirewallPage(ttk.Frame):
         self.button_tree_add = tk.Button(self.button_frame, text="Add", command=self.firewall_test_tree_add_line_test, width=button_size, underline=0)
         self.button_tree_add.grid(row=0, column=0, padx=5)
         #self.button_tree_add.pack(side="left", padx=5)
-        # TODO: see this bind as well
-        # TODO: Implement this one, because it was implemented before
         #parent.bind("<Alt-a>", lambda event: self.firewall_test_tree_add_line_test())
 
         self.button_tree_edit = tk.Button(self.button_frame, text="Edit", command=self.firewall_test_tree_edit_line_test, width=button_size, underline=0)
@@ -256,7 +254,7 @@ class FirewallPage(ttk.Frame):
         self.button_save_tests_as = ttk.Button(self.frame_button_save_tests, text="Save Tests As", command=self.firewall_tests_save_tests_as)
         self.button_save_tests_as.grid(row=0, column=3, padx=10, pady=10, sticky="nsew")
 
-        self.button_load_tests = ttk.Button(self.frame_button_save_tests, text="Open Tests", command=self.firewall_tests_open_test_file)
+        self.button_load_tests = ttk.Button(self.frame_button_save_tests, text="Load Tests", command=self.firewall_tests_open_test_file)
         self.button_load_tests.grid(row=0, column=5, padx=10, pady=10, sticky="nsew")
     
     def update_combobox_ip(self):
@@ -351,6 +349,10 @@ class FirewallPage(ttk.Frame):
 
         self.save_file_path = file_path
 
+        if (self.tree.get_children()):
+            if messagebox.askyesno("Confirmation", "Do you want to override existing tests?"):
+                self.delete_all_tests()
+        
         print(f"Loading tests from file: {file_path}")
 
         self.firewall_tests_load_tests_from_file()
@@ -373,29 +375,35 @@ class FirewallPage(ttk.Frame):
                     return
 
             # Add items to the Treeview
-
             for test in tests_data:
-
+                row_index = len(self.tree.get_children()) + 1
                 source = self.extract_hostname(test["src_ip"])
                 print(f"test source: {source}")
                 container_id = self.find_container_id(source)
-                if container_id:
-                    item_id = self.tree.insert("", "end", values=[
-                        test["teste_id"], container_id, test["src_ip"], test["dst_ip"], test["protocol"],
-                        test["src_port"], test["dst_port"], test["expected"], test["result"], test["flow"], test["data"]
-                    ])
-                else:
-                    # If the source host loaded from the file does not exist in the network scenario, prompt the user to find a new matching host, or ignore and do not include this test line.
-                    # TODO - Perhaps it would be necessary to check if the hosts' IPs are the same as the loaded test, if not the user could be asked to change the IP by choosing from a list.
-                    container_id, selected_host = self.ask_user_for_source_host(test["src_ip"], self.simulation.hosts_display, test)
-                    
-                    if selected_host is not None:
+                is_duplicate = False
+                values_check = [test["src_ip"], test["dst_ip"], test["protocol"], test["src_port"], test["dst_port"], test["expected"], "-", " ", " "]
+                for item in self.tree.get_children():
+                    if (self.check_is_duplicate(values_check, item)):
+                        is_duplicate = True
+                        break
+                if(not is_duplicate):
+                    if container_id:
                         item_id = self.tree.insert("", "end", values=[
-                            test["teste_id"], container_id, selected_host, test["dst_ip"], test["protocol"],
+                            row_index, container_id, test["src_ip"], test["dst_ip"], test["protocol"],
                             test["src_port"], test["dst_port"], test["expected"], test["result"], test["flow"], test["data"]
                         ])
                     else:
-                        print(f"Test {test} ignored by user.")
+                        container_id, selected_host = self.ask_user_for_source_host(test["src_ip"], self.simulation.hosts_display, test)
+                        
+                        if selected_host is not None:
+                            item_id = self.tree.insert("", "end", values=[
+                                row_index, container_id, selected_host, test["dst_ip"], test["protocol"],
+                                test["src_port"], test["dst_port"], test["expected"], test["result"], test["flow"], test["data"]
+                            ])
+                        else:
+                            print(f"Test {test} ignored by user.")
+                else:
+                    print(f"Test {test} skipped as it was a duplicate.")
 
             print("Tests successfully loaded!")
             self.firewall_tests_buttons_set_normal_state()
@@ -478,6 +486,28 @@ class FirewallPage(ttk.Frame):
 
         selected_host = None
         container_id = None
+        
+        def on_select():
+            nonlocal selected_host
+            nonlocal container_id
+            selected_host = host_var.get()
+            hostname = self.extract_hostname(selected_host)
+            container_id = self.find_container_id(hostname)
+            print(f"container_id on select {container_id}")
+            #selected_host = self.replace_hostname(source, selected_host)
+            dialog.destroy()
+
+        def on_ignore():
+            nonlocal selected_host
+            selected_host = None
+            dialog.destroy()
+
+        ttk.Button(dialog, text="Select", command=on_select).pack(side="left", padx=10, pady=10)
+        ttk.Button(dialog, text="Ignore", command=on_ignore).pack(side="right", padx=10, pady=10)
+
+        dialog.wait_window()  # wait closing window
+        
+        return container_id,selected_host
     
     def firewall_test_tree_select_line_test(self, event):
         """
@@ -599,10 +629,7 @@ class FirewallPage(ttk.Frame):
         values = [src_ip, dst_ip, protocol, src_port, dst_port, expected, "-", " ", " "]
 
         for item in self.tree.get_children(): # avoid duplicate testing
-            existing_values = self.tree.item(item, "values")
-            #print(f"Values\n{values}\n{existing_values[2:]}")
-            if tuple(values) == existing_values[2:]:
-                #print(f"egual values - \n{values}\n{existing_values}")
+            if (self.check_is_duplicate(values, item)):
                 messagebox.showwarning("Warning", "This entry already exists in the table!")
                 return
 
@@ -702,9 +729,8 @@ class FirewallPage(ttk.Frame):
 
         values = [src_ip, dst_ip, protocol, src_port, dst_port, expected, "-", " ", " "]
 
-        for item in self.tree.get_children(): # avoid duplicate TODO testing - put this in a method as it is duplicated in the code!
-            existing_values = self.tree.item(item, "values")
-            if tuple(values) == existing_values[2:]:
+        for item in self.tree.get_children():
+            if (self.check_is_duplicate(values, item)):
                 messagebox.showwarning("Warning", "This entry already exists in the table!")
                 return
 
@@ -960,6 +986,13 @@ class FirewallPage(ttk.Frame):
     
     def delete_all_tests(self):
         itens = self.tree.get_children()
-        total_list = len(itens)
         for test in itens:
             self.tree.delete(test)
+
+    def check_is_duplicate(self, values : list[str], item):
+        existing_values = self.tree.item(item, "values")
+        if tuple(values) == existing_values[2:]:
+            # messagebox.showwarning("Warning", "This entry already exists in the table!")
+            return True
+        else:
+            return False
