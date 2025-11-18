@@ -64,7 +64,7 @@ class FirewallPage(ttk.Frame):
         self.src_ip.grid(row=1, column=0)
         
         ttk.Label(frame_botton, text="Destination IP:").grid(row=0, column=1)
-        self.dst_ip = ttk.Combobox(frame_botton, values=self.simulation.hosts_display, width=25)
+        self.dst_ip = ttk.Combobox(frame_botton, values=self.simulation.hosts_display, width=25, state="readonly", style="TCombobox")
         #containers_data = containers.extract_containerid_hostname_ips() # Está estático, não é a melhor forma de fazer
         if len(simulation.containers_data) > 1: # checks if there is more than one element in the host list, if there isn't, you can't set the second one as default.
             self.dst_ip.current(1)
