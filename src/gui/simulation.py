@@ -65,6 +65,7 @@ class SimulationManager:
         try:
             if((Counter(self.hosts.get()) != Counter(updated_hosts.get()))):
                 self.hosts.set(value=updated_hosts.get())
+                self.hosts_start_servers()
             else:
                 return
         except AttributeError:
