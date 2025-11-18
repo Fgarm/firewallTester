@@ -8,7 +8,7 @@ The software enables the creation of network scenarios using [GNS3](https://www.
 - Define and edit firewall rules on the scenario's hosts;  
 - Add and remove ports that represent network services to be tested;  
 
-Additionally, the software allows you to save test results and rerun them later, for example, on another computer.
+Additionally, the software allows you to save test results and rerun them later, for example, on another computer. A [walkthrough](src/walktrough.md) is also offered exemplifying one possible scenario.
 
 ## Project Organization
 
@@ -17,8 +17,11 @@ Additionally, the software allows you to save test results and rerun them later,
     ├── src/ (source files)  
     │   ├── client.py (Acts as a client in the test scenario)  
     │   ├── server.py (Acts as a server in the test scenario)  
+    │   ├── simulation.py (Shared code that manages the test scenario)
+    │   ├── utils.py (Shared code for use in the interface)
+    │   ├── pages/ (Contains code for the pages present in the interface)
     │   ├── gui/  
-    │       ├── guiFirewallTest.py (Graphical interface for firewall rule testing)  
+    │       ├── guiFirewallTest.py (Main file of graphical interface for firewall rule testing)  
     │  
     ├── docker/ (Docker-related files)  
     ├── gns3/ (GNS3 project files)  
@@ -34,5 +37,8 @@ You should have received a copy of the GNU General Public License along with thi
 
 ## Contact
 
-This software was developed by **Luiz Arthur Feitosa dos Santos**, professor at **UTFPR (Federal Technological University of Paraná) - Campo Mourão, Brazil**.  
+This software was developed by:
+- **Luiz Arthur Feitosa dos Santos**, professor at **UTFPR (Federal Technological University of Paraná) - Campo Mourão, Brazil**.
 Email: <luiz.arthur.feitosa.santos@gmail.com> | <luizsantos@utfpr.edu.br>
+- **Guilherme Augusto Rodrigues Maturana**, student at **UTFPR (Federal Technological University of Paraná) - Campo Mourão, Brazil**.
+Email: <guilhermematurana@alunos.utfpr.edu.br>

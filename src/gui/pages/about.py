@@ -62,6 +62,8 @@ class AboutPage(ttk.Frame):
         add_centered("Developer:")
         add_centered("Prof. Luiz Arthur Feitosa dos Santos", font=("Arial", 12, "bold"))
         add_centered("luiz.arthur.feitosa.santos@gmail.com", is_link=True, bind_url="mailto:luiz.arthur.feitosa.santos@gmail.com")
+        add_centered("Guilherme Augusto Rodrigues Maturana", font=("Arial", 12, "bold"))
+        add_centered("guilhermematurana@alunos.utfpr.edu.br", is_link=True, bind_url="mailto:guilhermematurana@alunos.utfpr.edu.br")
         add_centered("Institution:")
         add_centered("UTFPR-CM", font=("Arial", 12, "bold"))
         add_centered("Project Link:")
