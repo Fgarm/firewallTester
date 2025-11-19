@@ -24,7 +24,7 @@ class FirewallPage(ttk.Frame):
         
         self.parent = parent
         self.simulation = simulation
-        
+        self.save_file_path = self.simulation.save_file_path
         #ttk.Label(self, text="Firewall Test", font=("Arial", 12)).pack(pady=10)
         # Frame for input fields
         
