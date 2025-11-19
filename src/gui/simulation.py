@@ -56,6 +56,12 @@ class SimulationManager:
             Updates all host/container data - checks for example if any container was created or deleted, if any network configuration changed, etc.
         """
         self.containers_data = containers.extract_containerid_hostname_ips()  # get hosts informations
+        if self.containers_data:
+            self.hosts_display = [f"{c['hostname']} ({c['ip']})" for c in self.containers_data]
+        else: # if there are no elements it displays a message
+            self.hosts_display = ["HOSTS (0.0.0.0)", "HOSTS (0.0.0.0)"]
+            messagebox.showerror("Error", "Unable to get a response from the hosts! \n Is GNS3 or the hosts running?")
+        
         self.container_hostname = containers.get_containerid_hostname() # container_id and hostname for operations
         #print(map(lambda x: x[1], self.container_hostname))
         print("aqui\n")
@@ -70,13 +76,6 @@ class SimulationManager:
                 return
         except AttributeError:
             self.hosts = updated_hosts
-        lista = self.hosts.get()
-        print(lista)
-        if self.containers_data:
-            self.hosts_display = [f"{c['hostname']} ({c['ip']})" for c in self.containers_data]
-        else: # if there are no elements it displays a message
-            self.hosts_display = ["HOSTS (0.0.0.0)", "HOSTS (0.0.0.0)"]
-            messagebox.showerror("Error", "Unable to get a response from the hosts! \n Is GNS3 or the hosts running?")
         
     
     def getContainersByImageName(self) -> list[dict[str, ]]:
