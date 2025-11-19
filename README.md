@@ -8,7 +8,7 @@ The software enables the creation of network scenarios using [GNS3](https://www.
 - Define and edit firewall rules on the scenario's hosts;  
 - Add and remove ports that represent network services to be tested;  
 
-Additionally, the software allows you to save test results and rerun them later, for example, on another computer. A [walkthrough](src/walktrough.md) is also offered exemplifying one possible scenario.
+Additionally, the software allows you to save test results and rerun them later, for example, on another computer. A [walkthrough](https://github.com/Fgarm/firewallTester/wiki/Software-guide) is also offered exemplifying one possible scenario.
 
 ## Project Organization
 
