@@ -193,7 +193,7 @@ class HostsPage(ttk.Frame):
         button_delete = ttk.Button(frame_buttons, text="Delete Port ", command=lambda: self.delete_line_treeview_host(list_host_ports))
         button_delete.grid(row=0, column=2, pady=5)
 
-        button_reload = ttk.Button(frame_buttons, text="Save & Apply Ports", command=lambda: self.apply_ports_popup(simulation, popup, container_id, list_host_ports))
+        button_reload = ttk.Button(frame_buttons, text="Save & Apply Ports", command=lambda: self.apply_ports(simulation, popup, container_id, list_host_ports))
         button_reload.grid(row=0, column=0, pady=10)
     
     

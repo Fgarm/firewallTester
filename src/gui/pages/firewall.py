@@ -773,20 +773,26 @@ class FirewallPage(ttk.Frame):
             print(f"Items to testing:: {values}")
             teste_id, container_id, src_ip, dst_ip, protocol, src_port, dst_port, expected, result, dnat, observation = values
             
+            # if you were unable to extract the destination IP entered by the user to
+            dst_ip = self.extract_destination_host(dst_ip)
+            if dst_ip == None: return
+            
             dst_container_id = None
             print(f"Checking if port is open")
             for container in self.simulation.containers_data:
                 print(f"IP x Target: {container['ip']} x {dst_ip}")
                 if(container["ip"] == dst_ip):
                     print("Found")
-                    dst_container_id = container["container_id"]
+                    dst_container_id = container["id"]
                     break
-            # if you were unable to extract the destination IP entered by the user to
-            dst_ip = self.extract_destination_host(dst_ip)
-            if dst_ip == None: return
-            print("Open ports")
-            print(f"My wanted port: {dst_port} {protocol}")
-            print(containers.get_port_from_container(dst_container_id))
+            open_ports = containers.get_port_from_container(dst_container_id)
+            is_port_open = ((protocol, int(dst_port)) in open_ports)
+            
+            if(not is_port_open):
+                if messagebox.askyesno("Confirmation", f"Port ({protocol}, {dst_port}) appears to be closed, want to open it first?"):
+                    #add port to list
+                    open_ports.append((protocol, int(dst_port)))
+                    self.simulation.hosts_save_ports_in_file_list(container_id, open_ports)
             
             print(f"Test executed - Container ID: {container_id}, Dados: {src_ip} -> {dst_ip} [{protocol}] {src_port}:{dst_port} (Expected: {expected})")
 

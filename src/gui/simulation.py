@@ -194,6 +194,34 @@ class SimulationManager:
         # restart server
         containers.start_server(container_id)
         
+    def hosts_save_ports_in_file_list(self, container_id, ports_list : list[tuple]):
+        """
+            Saves the ports and protocols of the Treeview in a file, in the format "port/protocol".
+
+            Args:
+                ports_table: The Treeview containing the columns "Protocol" and "Port".
+                file_name: Name of the file where the data will be saved.
+        """
+        settings = self.load_settings()
+        file_name = settings.get("server_ports_file", "").get()
+        try:
+            with open(file_name, "w") as file:
+                # Iterate through all rows of the Treeview
+                for portas in ports_list:
+                    # Get the line values (protocol and port)
+                    if len(portas) == 2:  # Check if there are two values ​​(protocol and port)
+                        protocolo, porta = portas
+                        # write in the file in the format "port/protocol"
+                        file.write(f"{porta}/{protocolo}\n")
+            print(f"Ports successfully saved in file {file_name}!")
+        except Exception as e:
+            print(f"Error saving ports: {e}")
+        
+        # reload the ports in the container, starting all services on each port.
+        self.reload_ports(container_id, file_name)
+        # restart server
+        containers.start_server(container_id)
+        
     def reload_ports(self, container_id, file_name):
         """
             Reload service ports in the container/host. It's made copying the file in the interface to the container.
