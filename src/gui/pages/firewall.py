@@ -792,7 +792,7 @@ class FirewallPage(ttk.Frame):
                 if messagebox.askyesno("Confirmation", f"Port ({protocol}, {dst_port}) appears to be closed, want to open it first?"):
                     #add port to list
                     open_ports.append((protocol, int(dst_port)))
-                    self.simulation.hosts_save_ports_in_file_list(container_id, open_ports)
+                    self.simulation.hosts_save_ports_in_file_list(dst_container_id, open_ports)
             
             print(f"Test executed - Container ID: {container_id}, Dados: {src_ip} -> {dst_ip} [{protocol}] {src_port}:{dst_port} (Expected: {expected})")
 
