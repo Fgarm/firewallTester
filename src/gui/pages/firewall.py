@@ -773,9 +773,20 @@ class FirewallPage(ttk.Frame):
             print(f"Items to testing:: {values}")
             teste_id, container_id, src_ip, dst_ip, protocol, src_port, dst_port, expected, result, dnat, observation = values
             
+            dst_container_id = None
+            print(f"Checking if port is open")
+            for container in self.simulation.containers_data:
+                print(f"IP x Target: {container['ip']} x {dst_ip}")
+                if(container["ip"] == dst_ip):
+                    print("Found")
+                    dst_container_id = container["container_id"]
+                    break
             # if you were unable to extract the destination IP entered by the user to
             dst_ip = self.extract_destination_host(dst_ip)
             if dst_ip == None: return
+            print("Open ports")
+            print(f"My wanted port: {dst_port} {protocol}")
+            print(containers.get_port_from_container(dst_container_id))
             
             print(f"Test executed - Container ID: {container_id}, Dados: {src_ip} -> {dst_ip} [{protocol}] {src_port}:{dst_port} (Expected: {expected})")
 
@@ -835,7 +846,7 @@ class FirewallPage(ttk.Frame):
             tag = "yesFail"
         else: # TODO - I think the logic is wrong here (check the possible cases) - is that in client.py you had to remove status=1 because it said there was an error in a packet blocked by the firewall!
             print(f"\033[31mThe test did NOT occur as expected.\033[0m")
-            tag = "error"
+            tag = "no"
 
 
         if "dnat" in result: # dnat only happens if there is a response from the server so there is no need for result["server_response"] == True - this comes from server.py
