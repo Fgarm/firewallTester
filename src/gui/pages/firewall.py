@@ -778,11 +778,8 @@ class FirewallPage(ttk.Frame):
             if dst_ip == None: return
             
             dst_container_id = None
-            print(f"Checking if port is open")
             for container in self.simulation.containers_data:
-                print(f"IP x Target: {container['ip']} x {dst_ip}")
                 if(container["ip"] == dst_ip):
-                    print("Found")
                     dst_container_id = container["id"]
                     break
             open_ports = containers.get_port_from_container(dst_container_id)
@@ -968,6 +965,21 @@ class FirewallPage(ttk.Frame):
             dst_ip = self.extract_destination_host(dst_ip)
             if dst_ip == None: return
 
+            dst_container_id = None
+            for container in self.simulation.containers_data:
+                if(container["ip"] == dst_ip):
+                    dst_container_id = container["id"]
+                    break
+            open_ports = containers.get_port_from_container(dst_container_id)
+            is_port_open = ((protocol, int(dst_port)) in open_ports)
+            
+            if(not is_port_open):
+                if messagebox.askyesno("Confirmation", f"Port ({protocol}, {dst_port}) appears to be closed, want to open it first?"):
+                    #add port to list
+                    open_ports.append((protocol, int(dst_port)))
+                    self.simulation.hosts_save_ports_in_file_list(dst_container_id, open_ports)
+                    
+            
             print(f"Executing test - Container ID:  {container_id}, Data: {src_ip} -> {dst_ip} [{protocol}] {src_port}:{dst_port} (Expected: {expected})")
 
             result_str = containers.run_client_test(container_id, dst_ip, protocol.lower(), dst_port, "1", "2025", "0")
