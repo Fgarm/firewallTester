@@ -50,6 +50,8 @@ class ListVar(tk.StringVar):
         Return variable as a list
         """
         lista = f'[{super().get()[1:-1]}]'
+        if(lista[-2] == ','):
+            lista = f"{lista[:-2]}]"
         lista = json.loads(lista.replace("'", '"'))
         return lista
         
