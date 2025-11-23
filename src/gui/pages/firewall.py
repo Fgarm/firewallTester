@@ -73,7 +73,7 @@ class FirewallPage(ttk.Frame):
 
         self.dst_ip.grid(row=1, column=1)
         # Binds the selection event
-        self.dst_ip["state"] = "normal"
+        self.dst_ip["state"] = "readonly"
         
         ttk.Label(frame_botton, text="Protocol:").grid(row=0, column=2)
         self.protocol = ttk.Combobox(frame_botton, values=protocols, width=6, state="readonly", style="TCombobox")
@@ -835,7 +835,7 @@ class FirewallPage(ttk.Frame):
             tag = "yesFail"
         else: # TODO - I think the logic is wrong here (check the possible cases) - is that in client.py you had to remove status=1 because it said there was an error in a packet blocked by the firewall!
             print(f"\033[31mThe test did NOT occur as expected.\033[0m")
-            tag = "no"
+            tag = "error"
 
 
         if "dnat" in result: # dnat only happens if there is a response from the server so there is no need for result["server_response"] == True - this comes from server.py
