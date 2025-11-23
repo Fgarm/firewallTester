@@ -648,7 +648,7 @@ class FirewallPage(ttk.Frame):
         self.button_tree_edit.config(state="disable")
         self.button_tree_del.config(state="disable")
         self.button_tree_test.config(state="disabled")
-        self.button_tree_edit.config(text="Editar")
+        self.button_tree_edit.config(text="Edit")
         if not self.tree.get_children():
             self.button_tree_test_all.config(state="disabled")
         else:
